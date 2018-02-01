@@ -23,8 +23,8 @@ GameObject:
   - component: {fileID: 135154398755350544}
   - component: {fileID: 23325294674916170}
   m_Layer: 0
-  m_Name: PathPointPrefab
-  m_TagString: Untagged
+  m_Name: SampleSpherePrefab
+  m_TagString: Sample
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
