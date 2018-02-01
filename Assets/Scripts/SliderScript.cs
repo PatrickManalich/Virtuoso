@@ -19,8 +19,8 @@ public class SliderScript : MonoBehaviour {
     void Update() { }
 
     void OnMouseDown() {
-        if (toyScript.PathPointsPresent()) {
-            toyScript.ResetPosition();
+        if (toyScript.AnimationRecorded()) {
+            toyScript.Reset();
             screenPoint = Camera.main.WorldToScreenPoint(transform.position);
             offset = transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
         } else {
@@ -29,7 +29,7 @@ public class SliderScript : MonoBehaviour {
     }
 
     void OnMouseDrag() {
-        if (toyScript.PathPointsPresent()) {
+        if (toyScript.AnimationRecorded()) {
             Vector3 currScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
             Vector3 currPosition = Camera.main.ScreenToWorldPoint(currScreenPoint) + offset;
             Vector3 currPositionRestricted = new Vector3(currPosition.x, transform.position.y, transform.position.z);

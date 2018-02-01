@@ -19,13 +19,14 @@ public class ControllerScript : MonoBehaviour {
             if (Physics.Raycast(ray, out hit, 100)) {
                 if (hit.collider.gameObject.name == "PlayButton") {
                     Renderer hitRenderer = hit.collider.gameObject.GetComponent<Renderer>();
-                    if (toyScript.PathPointsPresent()) {
+                    if (toyScript.AnimationRecorded()) {
                         if (hitRenderer.material.color == Color.red) {
                             hitRenderer.material.color = Color.green;
-                            toyScript.DebugShowPathPoints();
+                            //toyScript.DebugInstantiateSamples();
                             toyScript.StartPlaying();
                         } else {
                             hitRenderer.material.color = Color.red;
+                            //toyScript.DebugDestroySamples();
                             toyScript.StopPlaying();
                         }
                     }
