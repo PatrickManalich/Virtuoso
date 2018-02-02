@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SimplifyScript : MonoBehaviour {
 
-    private GameObject toy;
+    public GameObject toy;
     private ToyScript toyScript;
     //private GameObject controller;
     //private ControllerScript controllerScript;
@@ -12,8 +12,7 @@ public class SimplifyScript : MonoBehaviour {
     public float tiltAngle = 30.0F;
 
     void Start () {
-        toy = GameObject.Find("Toy");
-        toyScript = (ToyScript)toy.GetComponent(typeof(ToyScript));
+        toyScript = toy.GetComponent<ToyScript>();
         //controller = GameObject.Find("Controller");
         //controllerScript = (ControllerScript)controller.GetComponent(typeof(ControllerScript));
 

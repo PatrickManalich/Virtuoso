@@ -2,25 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SliderScript : MonoBehaviour {
+public class PlaySliderScript : MonoBehaviour {
 
     private Vector3 screenPoint;
     private Vector3 offset;
-    private GameObject toy;
+    public GameObject toy;
     private ToyScript toyScript;
-    private GameObject sliderRail;
+    public GameObject sliderRail;
 
     void Start() {
-        toy = GameObject.Find("Toy");
-        toyScript = (ToyScript)toy.GetComponent(typeof(ToyScript));
-        sliderRail = GameObject.Find("SliderRail");
+        toyScript = toy.GetComponent<ToyScript>();
     }
 
     void Update() { }
 
     void OnMouseDown() {
         if (toyScript.AnimationRecorded()) {
-            toyScript.Reset();
+            //toyScript.Reset();
             screenPoint = Camera.main.WorldToScreenPoint(transform.position);
             offset = transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
         } else {
@@ -40,6 +38,13 @@ public class SliderScript : MonoBehaviour {
                 toyScript.MatchSliderPosition(sliderPercent);
             }
         }
+    }
+
+    public void MatchToyPosition(float sliderPercent) {
+        float sliderRailHalfLength = sliderRail.transform.localScale.y;
+        float newX = (sliderPercent * (sliderRailHalfLength * 2)) - sliderRailHalfLength;
+        Vector3 newPosition = new Vector3(newX, transform.position.y, transform.position.z);
+        transform.position = newPosition;
     }
 
 }
