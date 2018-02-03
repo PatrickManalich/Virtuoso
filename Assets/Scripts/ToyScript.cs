@@ -15,12 +15,20 @@ public class ToyScript : MonoBehaviour {
     public GameObject playSlider;
     private PlaySliderScript playSliderScript;
     private int lastTargetIndex;
+    private float lastT;
+    private Vector3 lastBaseSamplePos;
+    private Quaternion lastBaseSampleRot;
+    private bool paused;
 
     void Start () {
         samplePosList = new List<Vector3>();
         sampleRotList = new List<Quaternion>();
         playSliderScript = playSlider.GetComponent<PlaySliderScript>();
         lastTargetIndex = 1;
+        lastT = 0f;
+        lastBaseSamplePos = transform.position;
+        lastBaseSampleRot = transform.rotation;
+        paused = false;
     }
 
     void Update() { }
@@ -48,28 +56,43 @@ public class ToyScript : MonoBehaviour {
     void OnMouseUp() {
         samplePosList.Add(transform.position);
         sampleRotList.Add(transform.rotation);
+        transform.position = samplePosList[0];
+        transform.rotation = sampleRotList[0];
     }
 
-    public IEnumerator MoveToPosition(int targetIndex, float sampleRate) {
-        if (targetIndex < samplePosList.Count) {
-            float t = 0f;
-            while (t < 1) {
-                t += Time.deltaTime / sampleRate;
-                transform.position = Vector3.Lerp(transform.position, samplePosList[targetIndex], t);
-                transform.rotation = Quaternion.Lerp(transform.rotation, sampleRotList[targetIndex], t);
-                float startingSamplePercent = ((float) targetIndex - 1.0f) / ((float)samplePosList.Count - 1.0f);
-                float sliderPercent = t * (1.0f / ((float) samplePosList.Count - 1.0f)) + startingSamplePercent;
+    public IEnumerator MoveToNextSample() {
+        //Debug.Log("MoveToNextSample");
+        //Debug.Log(lastTargetIndex);
+        //Debug.Log(lastT);
+        //Debug.Log(lastBaseSamplePos);
+        //Debug.Log(lastBaseSampleRot);
+        if (lastTargetIndex < samplePosList.Count) {
+            if (!paused) {
+                lastBaseSamplePos = transform.position;
+                lastBaseSampleRot = transform.rotation;
+                lastT = 0f;
+            } else
+                paused = false;
+            while (lastT < 1) {
+                lastT += Time.deltaTime / sampleRate;
+                transform.position = Vector3.Lerp(lastBaseSamplePos, samplePosList[lastTargetIndex], lastT);
+                transform.rotation = Quaternion.Lerp(lastBaseSampleRot, sampleRotList[lastTargetIndex], lastT);
+                float startingSamplePercent = ((float) lastTargetIndex - 1.0f) / ((float)samplePosList.Count - 1.0f);
+                float sliderPercent = lastT * (1.0f / ((float) samplePosList.Count - 1.0f)) + startingSamplePercent;
                 if (sliderPercent > 1.0f)
                     sliderPercent = 1.0f;
                 playSliderScript.MatchToyPosition(sliderPercent);
                 yield return null;
             }
-            lastTargetIndex = targetIndex + 1;
-            yield return MoveToPosition(targetIndex + 1, sampleRate);
+            lastTargetIndex++;
+            yield return MoveToNextSample();
         } else {
             transform.position = samplePosList[0];
             transform.rotation = sampleRotList[0];
-            yield return MoveToPosition(1, sampleRate);
+            lastBaseSamplePos = transform.position;
+            lastBaseSampleRot = transform.rotation;
+            lastTargetIndex = 1;
+            yield return MoveToNextSample();
         }
     }
 
@@ -87,11 +110,12 @@ public class ToyScript : MonoBehaviour {
     }
 
     public void StartPlaying() {
-        StartCoroutine(MoveToPosition(lastTargetIndex, sampleRate));
+        StartCoroutine(MoveToNextSample());
     }
 
     public void StopPlaying() {
         StopAllCoroutines();
+        paused = true;
     }
 
     //-------------------------------------------------------------------------------------
@@ -107,6 +131,16 @@ public class ToyScript : MonoBehaviour {
         foreach (GameObject sample in samples) {
             Destroy(sample);
         }
+    }
+
+    public void DebugAddSample(Vector3 samplePos, Quaternion sampleRot) {
+        samplePosList.Add(samplePos);
+        sampleRotList.Add(sampleRot);
+    }
+
+    public void DebugReset() {
+        transform.position = samplePosList[0];
+        transform.rotation = sampleRotList[0];
     }
 
 }

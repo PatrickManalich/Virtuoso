@@ -4,31 +4,37 @@ using UnityEngine;
 
 public class SimplifyScript : MonoBehaviour {
 
+    // The SimplifyScript.cs must be inactive and then turned active in Unity editor after initialization of Toy
+    // so a NullReferenceException isn't thrown
+
     public GameObject toy;
     private ToyScript toyScript;
-    //private GameObject controller;
-    //private ControllerScript controllerScript;
     public float smooth = 2.0F;
     public float tiltAngle = 30.0F;
+    Vector3 sample0;
+    Vector3 sample1;
+    Vector3 sample2;
+    Vector3 sample3;
 
     void Start () {
         toyScript = toy.GetComponent<ToyScript>();
-        //controller = GameObject.Find("Controller");
-        //controllerScript = (ControllerScript)controller.GetComponent(typeof(ControllerScript));
 
-        //Vector3 pathPoint0 = new Vector3(-1f, 0.5f, -1.62f);
-        //Vector3 pathPoint1 = new Vector3(0f, 0.5f, -1.62f);
-        //Vector3 pathPoint2 = new Vector3(1f, 0.5f, -1.62f);
-        //toyScript.DebugAddPathPoint(pathPoint0);
-        //toyScript.DebugAddPathPoint(pathPoint1);
-        //toyScript.DebugAddPathPoint(pathPoint2);
-        //toyScript.DebugShowPathPoints();
+        sample0 = new Vector3(-2f, 0.5f, -1.62f);
+        sample1 = new Vector3(0f, 0.5f, -1.62f);
+        sample2 = new Vector3(2f, 0.5f, -1.62f);
+        sample3 = new Vector3(3f, 0.5f, -1.62f);
+        //toyScript.DebugAddSample(sample0, Quaternion.identity);
+        //toyScript.DebugAddSample(sample1, Quaternion.identity);
+        //toyScript.DebugAddSample(sample2, Quaternion.identity);
+        //toyScript.DebugAddSample(sample3, Quaternion.identity);
+        //toyScript.DebugInstantiateSamples();
+        //toyScript.DebugReset();
         //toyScript.StartPlaying();
     }
 
     void Update () {
         if (Input.GetKeyDown("space")) {
-            //StopAllCoroutines();
+            toyScript.DebugDestroySamples();
             toyScript.StopPlaying();
         }
 
