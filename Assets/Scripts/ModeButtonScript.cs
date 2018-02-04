@@ -4,58 +4,64 @@ using UnityEngine;
 
 public class ModeButtonScript : MonoBehaviour {
 
+    private enum Mode { Play, Edit };
+    private Mode mode;
     public GameObject toy;
+    private ToyScript toyScript;
     public GameObject playButton;
+    private PlayButtonScript playButtonScript;
     public GameObject playButtonText;
     public GameObject playSlider;
-    public GameObject editButton;
-    public GameObject editButtonText;
+    public GameObject editGhostButton;
+    private EditGhostButtonScript editGhostButtonScript;
+    public GameObject editGhostButtonText;
     public GameObject editBeginSlider;
     public GameObject editEndSlider;
-    public GameObject editBeginAid;
-    public GameObject editEndAid;
-    public GameObject playModeText;
-    private string mode;
+    public GameObject editSliderController;
+    public GameObject modeText;
 
     void Start() {
+        toyScript = toy.GetComponent<ToyScript>();
+        playButtonScript = playButton.GetComponent<PlayButtonScript>();
+        editGhostButtonScript = editGhostButton.GetComponent<EditGhostButtonScript>();
         playButton.SetActive(true);
         playButtonText.SetActive(true);
-        playButtonText.GetComponent<TextMesh>().text = "||";
         playSlider.SetActive(true);
-        playModeText.SetActive(true);
-        playModeText.GetComponent<TextMesh>().text = "Play Mode";
-        mode = "Play";
+        modeText.SetActive(true);
+        modeText.GetComponent<TextMesh>().text = "Play Mode";
+        mode = Mode.Play;
     }
 
     void Update() { }
 
     void OnMouseDown() {
-        if(mode == "Play") {        // Switch to Edit Mode
-            playButton.SetActive(false);
-            playButtonText.SetActive(false);
-            editButton.SetActive(true);
-            editButtonText.SetActive(true);
-            editButtonText.GetComponent<TextMesh>().text = "Ghost\n  Off";
-            playSlider.SetActive(false);
-            editBeginSlider.SetActive(true);
-            editEndSlider.SetActive(true);
-            editBeginAid.SetActive(true);
-            editEndAid.SetActive(true);
-            playModeText.GetComponent<TextMesh>().text = "Edit Mode";
-            mode = "Edit";
-        } else if(mode == "Edit") { // Switch to Play Mode
-            editButton.SetActive(false);
-            editButtonText.SetActive(false);
-            playButton.SetActive(true);
-            playButtonText.SetActive(true);
-            playButtonText.GetComponent<TextMesh>().text = "||";
+        if(mode == Mode.Play) {        // Switch to Edit Mode
+            if (toyScript.AnimationRecorded()) {
+                playButtonScript.changeState(false);
+                playButton.SetActive(false);
+                playButtonText.SetActive(false);
+                playSlider.SetActive(false);
+                editGhostButton.SetActive(true);
+                editGhostButtonText.SetActive(true);
+                editBeginSlider.SetActive(true);
+                editEndSlider.SetActive(true);
+                editSliderController.SetActive(true);
+                modeText.GetComponent<TextMesh>().text = "Edit Mode";
+                mode = Mode.Edit;
+            } else
+                Debug.Log("No animation has been recorded");
+        } else if(mode == Mode.Edit) { // Switch to Play Mode
+            editGhostButtonScript.changeState(false);
+            editGhostButton.SetActive(false);
+            editGhostButtonText.SetActive(false);
             editBeginSlider.SetActive(false);
             editEndSlider.SetActive(false);
-            editBeginAid.SetActive(false);
-            editEndAid.SetActive(false);
+            editSliderController.SetActive(false);
+            playButton.SetActive(true);
+            playButtonText.SetActive(true);
             playSlider.SetActive(true);
-            playModeText.GetComponent<TextMesh>().text = "Play Mode";
-            mode = "Play";
+            modeText.GetComponent<TextMesh>().text = "Play Mode";
+            mode = Mode.Play;
         }
 
     }

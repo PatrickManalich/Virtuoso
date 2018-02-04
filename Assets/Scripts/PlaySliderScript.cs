@@ -23,18 +23,18 @@ public class PlaySliderScript : MonoBehaviour {
         if (toyScript.AnimationRecorded()) {
             screenPoint = Camera.main.WorldToScreenPoint(transform.position);
             offset = transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
-        } else {
+        } else
             Debug.Log("No animation has been recorded");
-        }
     }
 
     void OnMouseDrag() {
         if (toyScript.AnimationRecorded()) {
-            Vector3 currScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
-            Vector3 currPosition = Camera.main.ScreenToWorldPoint(currScreenPoint) + offset;
-            if (currPosition.x > -sliderRailHalfLength && currPosition.x < sliderRailHalfLength) {
-                transform.position = new Vector3(currPosition.x, transform.position.y, transform.position.z); ;
-                float sliderPercent = (currPosition.x + sliderRailHalfLength) / (sliderRailHalfLength * 2);
+            Vector3 testScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
+            Vector3 testPosition = Camera.main.ScreenToWorldPoint(testScreenPoint) + offset;
+            float testPositionX = testPosition.x;
+            if (testPositionX > -sliderRailHalfLength && testPositionX < sliderRailHalfLength) {
+                transform.position = new Vector3(testPositionX, transform.position.y, transform.position.z); ;
+                float sliderPercent = (testPositionX + sliderRailHalfLength) / (sliderRailHalfLength * 2);
                 toyScript.CalibrateWithPlaySlider(sliderPercent);
             }
         }

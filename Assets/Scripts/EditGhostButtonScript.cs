@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayButtonScript : MonoBehaviour {
+public class EditGhostButtonScript : MonoBehaviour {
 
     private Vector3 screenPoint;
     private Vector3 offset;
     public GameObject toy;
     private ToyScript toyScript;
-    public GameObject playButtonText;
+    public GameObject editGhostButtonText;
 
     void Start() {
         toyScript = toy.GetComponent<ToyScript>();
@@ -29,14 +29,14 @@ public class PlayButtonScript : MonoBehaviour {
     public void changeState(bool on) {
         if (on) {
             GetComponent<Renderer>().material.color = Color.green;
-            playButtonText.GetComponent<TextMesh>().text = ">";
-            toyScript.DebugInstantiateSamples();
-            toyScript.StartPlaying();
+            editGhostButtonText.GetComponent<TextMesh>().text = "Ghost\n  On";
+            //toyScript.DebugInstantiateSamples();
+            Debug.Log("StartEdit");
         } else {
             GetComponent<Renderer>().material.color = Color.red;
-            playButtonText.GetComponent<TextMesh>().text = "||";
-            toyScript.DebugDestroySamples();
-            toyScript.StopPlaying();
+            editGhostButtonText.GetComponent<TextMesh>().text = "Ghost\n  Off";
+            //toyScript.DebugDestroySamples();
+            Debug.Log("StopEdit");
         }
     }
 

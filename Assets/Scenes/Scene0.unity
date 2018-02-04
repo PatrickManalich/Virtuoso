@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 98656705}
   - component: {fileID: 98656704}
   m_Layer: 0
-  m_Name: EditButtonText
+  m_Name: EditGhostButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -534,9 +534,9 @@ GameObject:
   m_Component:
   - component: {fileID: 364004562}
   - component: {fileID: 364004561}
-  - component: {fileID: 364004560}
   - component: {fileID: 364004559}
   - component: {fileID: 364004558}
+  - component: {fileID: 364004560}
   m_Layer: 0
   m_Name: EditEndAid
   m_TagString: Untagged
@@ -655,13 +655,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 461aa2e0b587daf4ab73a892f7c2686f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sliderType: 0
-  toy: {fileID: 2049878604}
-  sliderRail: {fileID: 584692439}
-  editBeginAid: {fileID: 2075669844}
-  editEndAid: {fileID: 364004557}
-  otherEditSlider: {fileID: 1470644184}
-  bufferDistance: 0.5
+  isBeginSlider: 1
+  editSliderController: {fileID: 1413682957}
 --- !u!23 &473635148
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -824,7 +819,7 @@ GameObject:
   - component: {fileID: 856545484}
   - component: {fileID: 856545483}
   m_Layer: 0
-  m_Name: PlayModeText
+  m_Name: ModeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -911,7 +906,7 @@ GameObject:
   - component: {fileID: 1284891981}
   - component: {fileID: 1284891985}
   m_Layer: 0
-  m_Name: EditButton
+  m_Name: EditGhostButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -991,10 +986,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1284891980}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d5529a51506c48479a12f378ed1d83a, type: 3}
+  m_Script: {fileID: 11500000, guid: 71d015f64931f4a4cbea631e952de074, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   toy: {fileID: 2049878604}
+  editGhostButtonText: {fileID: 98656703}
 --- !u!1 &1288404573
 GameObject:
   m_ObjectHideFlags: 0
@@ -1072,13 +1068,12 @@ MonoBehaviour:
   playButton: {fileID: 201557311}
   playButtonText: {fileID: 1965308536}
   playSlider: {fileID: 2084947469}
-  editButton: {fileID: 1284891980}
-  editButtonText: {fileID: 98656703}
+  editGhostButton: {fileID: 1284891980}
+  editGhostButtonText: {fileID: 98656703}
   editBeginSlider: {fileID: 473635146}
   editEndSlider: {fileID: 1470644184}
-  editBeginAid: {fileID: 2075669844}
-  editEndAid: {fileID: 364004557}
-  playModeText: {fileID: 856545482}
+  editSliderController: {fileID: 1413682957}
+  modeText: {fileID: 856545482}
 --- !u!23 &1291809077
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1145,6 +1140,53 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: -18.774, y: 0, z: 0}
+--- !u!1 &1413682957
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1413682959}
+  - component: {fileID: 1413682958}
+  m_Layer: 0
+  m_Name: EditSliderController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1413682958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1413682957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34989261d61f0754eb34a9abb4b0a222, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toy: {fileID: 2049878604}
+  sliderRail: {fileID: 584692439}
+  editBeginSlider: {fileID: 473635146}
+  editEndSlider: {fileID: 1470644184}
+  editBeginAid: {fileID: 2075669844}
+  editEndAid: {fileID: 364004557}
+  bufferDistance: 0.5
+--- !u!4 &1413682959
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1413682957}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 17
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1470644184
 GameObject:
   m_ObjectHideFlags: 0
@@ -1175,13 +1217,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 461aa2e0b587daf4ab73a892f7c2686f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sliderType: 1
-  toy: {fileID: 2049878604}
-  sliderRail: {fileID: 584692439}
-  editBeginAid: {fileID: 2075669844}
-  editEndAid: {fileID: 364004557}
-  otherEditSlider: {fileID: 473635146}
-  bufferDistance: 0.5
+  isBeginSlider: 0
+  editSliderController: {fileID: 1413682957}
 --- !u!23 &1470644186
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1442,9 +1479,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2075669849}
   - component: {fileID: 2075669848}
-  - component: {fileID: 2075669847}
   - component: {fileID: 2075669846}
   - component: {fileID: 2075669845}
+  - component: {fileID: 2075669847}
   m_Layer: 0
   m_Name: EditBeginAid
   m_TagString: Untagged

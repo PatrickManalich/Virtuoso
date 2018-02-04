@@ -42,9 +42,9 @@ public class ToyScript : MonoBehaviour {
     }
 
     void OnMouseDrag() {
-        Vector3 currScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
-        Vector3 currPosition = Camera.main.ScreenToWorldPoint(currScreenPoint) + offset;
-        transform.position = currPosition;
+        Vector3 testScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
+        Vector3 testPosition = Camera.main.ScreenToWorldPoint(testScreenPoint) + offset;
+        transform.position = testPosition;
         if((Time.time - startTime) > sampleRate) {
             startTime = Time.time;
             samplePosList.Add(transform.position);
@@ -98,7 +98,7 @@ public class ToyScript : MonoBehaviour {
             sliderPercent = 0f;
         else if (sliderPercent > 1f)
             sliderPercent = 1f;
-        int startingSampleIndex = (int)(sliderPercent * (samplePosList.Count - 1)); // Casting automatically floors
+        int startingSampleIndex = (int) Mathf.Floor(sliderPercent * (samplePosList.Count - 1));
         lastTargetIndex = startingSampleIndex;
         float startingSamplePercent = (float) startingSampleIndex / ((float) samplePosList.Count - 1.0f);
         float t = (sliderPercent - startingSamplePercent) / (1.0f / ((float) samplePosList.Count - 1.0f));
@@ -106,34 +106,52 @@ public class ToyScript : MonoBehaviour {
         transform.rotation = Quaternion.Lerp(sampleRotList[startingSampleIndex], sampleRotList[startingSampleIndex + 1], t);
     }
 
-    public Vector3 GetPositionAtSliderPercent(float sliderPercent) {
+    public Vector3 GetPositionAtSliderPercent(float sliderPercent, bool floorSampleIndex) {
         if (sliderPercent < 0f)
             sliderPercent = 0f;
         else if (sliderPercent > 1f)
             sliderPercent = 1f;
-        int startingSampleIndex = (int)(sliderPercent * (samplePosList.Count - 1)); // Casting automatically floors
-        if (startingSampleIndex == samplePosList.Count - 1)
-            return samplePosList[samplePosList.Count - 1];
-        else {
-            float startingSamplePercent = (float)startingSampleIndex / ((float)samplePosList.Count - 1.0f);
-            float t = (sliderPercent - startingSamplePercent) / (1.0f / ((float)samplePosList.Count - 1.0f));
-            return Vector3.Lerp(samplePosList[startingSampleIndex], samplePosList[startingSampleIndex + 1], t);
-        }     
+        int sampleIndex;
+        if(floorSampleIndex)
+           sampleIndex = (int) Mathf.Floor(sliderPercent * (samplePosList.Count - 1));
+        else
+            sampleIndex = (int) Mathf.Ceil(sliderPercent * (samplePosList.Count - 1));
+        return samplePosList[sampleIndex];
     }
 
-    public Quaternion GetRotationAtSliderPercent(float sliderPercent) {
+    public Quaternion GetRotationAtSliderPercent(float sliderPercent, bool floorSampleIndex) {
         if (sliderPercent < 0f)
             sliderPercent = 0f;
         else if (sliderPercent > 1f)
             sliderPercent = 1f;
-        int startingSampleIndex = (int)(sliderPercent * (samplePosList.Count - 1)); // Casting automatically floors
-        if (startingSampleIndex == samplePosList.Count - 1)
-            return sampleRotList[samplePosList.Count - 1];
-        else {
-            float startingSamplePercent = (float)startingSampleIndex / ((float)samplePosList.Count - 1.0f);
-            float t = (sliderPercent - startingSamplePercent) / (1.0f / ((float)samplePosList.Count - 1.0f));
-            return Quaternion.Lerp(sampleRotList[startingSampleIndex], sampleRotList[startingSampleIndex + 1], t);
-        }
+        int sampleIndex;
+        if (floorSampleIndex)
+            sampleIndex = (int) Mathf.Floor(sliderPercent * (samplePosList.Count - 1));
+        else
+            sampleIndex = (int) Mathf.Ceil(sliderPercent * (samplePosList.Count - 1));
+        return sampleRotList[sampleIndex];
+    }
+
+    public int GetSampleIndexAtSliderPercent(float sliderPercent, bool floorSampleIndex) {
+        if (sliderPercent < 0f)
+            sliderPercent = 0f;
+        else if (sliderPercent > 1f)
+            sliderPercent = 1f;
+
+        int sampleIndex;
+        if (floorSampleIndex)
+            sampleIndex = (int) Mathf.Floor(sliderPercent * (samplePosList.Count - 1));
+        else
+            sampleIndex = (int) Mathf.Ceil(sliderPercent * (samplePosList.Count - 1));
+        return sampleIndex;
+    }
+
+    public float GetSnappedSliderPercentAtSampleIndex(int currSampleIndex) {
+        if(currSampleIndex < 0 || currSampleIndex > samplePosList.Count - 1) {
+            Debug.Log("Error in GetSnappedSliderPercent() in ToyScript.cs");
+            return 0.0f;
+        } else
+            return (float) currSampleIndex / ((float) samplePosList.Count - 1.0f);
     }
 
     public void StartPlaying() {
