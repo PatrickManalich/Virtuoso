@@ -61,11 +61,6 @@ public class ToyScript : MonoBehaviour {
     }
 
     public IEnumerator MoveToNextSample() {
-        //Debug.Log("MoveToNextSample");
-        //Debug.Log(lastTargetIndex);
-        //Debug.Log(lastT);
-        //Debug.Log(lastBaseSamplePos);
-        //Debug.Log(lastBaseSampleRot);
         if (lastTargetIndex < samplePosList.Count) {
             if (!paused) {
                 lastBaseSamplePos = transform.position;
@@ -79,9 +74,7 @@ public class ToyScript : MonoBehaviour {
                 transform.rotation = Quaternion.Lerp(lastBaseSampleRot, sampleRotList[lastTargetIndex], lastT);
                 float startingSamplePercent = ((float) lastTargetIndex - 1.0f) / ((float)samplePosList.Count - 1.0f);
                 float sliderPercent = lastT * (1.0f / ((float) samplePosList.Count - 1.0f)) + startingSamplePercent;
-                if (sliderPercent > 1.0f)
-                    sliderPercent = 1.0f;
-                playSliderScript.MatchToyPosition(sliderPercent);
+                playSliderScript.CalibrateWithToy(sliderPercent);
                 yield return null;
             }
             lastTargetIndex++;
@@ -100,13 +93,47 @@ public class ToyScript : MonoBehaviour {
         return samplePosList.Count > 0;
     }
 
-    public void MatchSliderPosition(float sliderPercent) {
+    public void CalibrateWithPlaySlider(float sliderPercent) {
+        if (sliderPercent < 0f)
+            sliderPercent = 0f;
+        else if (sliderPercent > 1f)
+            sliderPercent = 1f;
         int startingSampleIndex = (int)(sliderPercent * (samplePosList.Count - 1)); // Casting automatically floors
         lastTargetIndex = startingSampleIndex;
         float startingSamplePercent = (float) startingSampleIndex / ((float) samplePosList.Count - 1.0f);
         float t = (sliderPercent - startingSamplePercent) / (1.0f / ((float) samplePosList.Count - 1.0f));
         transform.position = Vector3.Lerp(samplePosList[startingSampleIndex], samplePosList[startingSampleIndex+1], t);
         transform.rotation = Quaternion.Lerp(sampleRotList[startingSampleIndex], sampleRotList[startingSampleIndex + 1], t);
+    }
+
+    public Vector3 GetPositionAtSliderPercent(float sliderPercent) {
+        if (sliderPercent < 0f)
+            sliderPercent = 0f;
+        else if (sliderPercent > 1f)
+            sliderPercent = 1f;
+        int startingSampleIndex = (int)(sliderPercent * (samplePosList.Count - 1)); // Casting automatically floors
+        if (startingSampleIndex == samplePosList.Count - 1)
+            return samplePosList[samplePosList.Count - 1];
+        else {
+            float startingSamplePercent = (float)startingSampleIndex / ((float)samplePosList.Count - 1.0f);
+            float t = (sliderPercent - startingSamplePercent) / (1.0f / ((float)samplePosList.Count - 1.0f));
+            return Vector3.Lerp(samplePosList[startingSampleIndex], samplePosList[startingSampleIndex + 1], t);
+        }     
+    }
+
+    public Quaternion GetRotationAtSliderPercent(float sliderPercent) {
+        if (sliderPercent < 0f)
+            sliderPercent = 0f;
+        else if (sliderPercent > 1f)
+            sliderPercent = 1f;
+        int startingSampleIndex = (int)(sliderPercent * (samplePosList.Count - 1)); // Casting automatically floors
+        if (startingSampleIndex == samplePosList.Count - 1)
+            return sampleRotList[samplePosList.Count - 1];
+        else {
+            float startingSamplePercent = (float)startingSampleIndex / ((float)samplePosList.Count - 1.0f);
+            float t = (sliderPercent - startingSamplePercent) / (1.0f / ((float)samplePosList.Count - 1.0f));
+            return Quaternion.Lerp(sampleRotList[startingSampleIndex], sampleRotList[startingSampleIndex + 1], t);
+        }
     }
 
     public void StartPlaying() {

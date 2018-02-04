@@ -23,12 +23,12 @@ public class SimplifyScript : MonoBehaviour {
         sample1 = new Vector3(0f, 0.5f, -1.62f);
         sample2 = new Vector3(2f, 0.5f, -1.62f);
         sample3 = new Vector3(3f, 0.5f, -1.62f);
-        //toyScript.DebugAddSample(sample0, Quaternion.identity);
-        //toyScript.DebugAddSample(sample1, Quaternion.identity);
-        //toyScript.DebugAddSample(sample2, Quaternion.identity);
-        //toyScript.DebugAddSample(sample3, Quaternion.identity);
-        //toyScript.DebugInstantiateSamples();
-        //toyScript.DebugReset();
+        toyScript.DebugAddSample(sample0, Quaternion.identity);
+        toyScript.DebugAddSample(sample1, Quaternion.identity);
+        toyScript.DebugAddSample(sample2, Quaternion.identity);
+        toyScript.DebugAddSample(sample3, Quaternion.identity);
+        toyScript.DebugInstantiateSamples();
+        toyScript.DebugReset();
         //toyScript.StartPlaying();
     }
 
