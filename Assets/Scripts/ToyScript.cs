@@ -19,6 +19,9 @@ public class ToyScript : MonoBehaviour {
     private Vector3 lastBaseSamplePos;
     private Quaternion lastBaseSampleRot;
     private bool paused;
+    public GameObject editGhostToy;
+    private int beginSampleIndex;
+    private int endSampleIndex;
 
     void Start () {
         samplePosList = new List<Vector3>();
@@ -106,52 +109,16 @@ public class ToyScript : MonoBehaviour {
         transform.rotation = Quaternion.Lerp(sampleRotList[startingSampleIndex], sampleRotList[startingSampleIndex + 1], t);
     }
 
-    public Vector3 GetPositionAtSliderPercent(float sliderPercent, bool floorSampleIndex) {
-        if (sliderPercent < 0f)
-            sliderPercent = 0f;
-        else if (sliderPercent > 1f)
-            sliderPercent = 1f;
-        int sampleIndex;
-        if(floorSampleIndex)
-           sampleIndex = (int) Mathf.Floor(sliderPercent * (samplePosList.Count - 1));
-        else
-            sampleIndex = (int) Mathf.Ceil(sliderPercent * (samplePosList.Count - 1));
+    public int GetSampleCount() {
+        return samplePosList.Count;
+    }
+
+    public Vector3 GetSamplePos(int sampleIndex) {
         return samplePosList[sampleIndex];
     }
 
-    public Quaternion GetRotationAtSliderPercent(float sliderPercent, bool floorSampleIndex) {
-        if (sliderPercent < 0f)
-            sliderPercent = 0f;
-        else if (sliderPercent > 1f)
-            sliderPercent = 1f;
-        int sampleIndex;
-        if (floorSampleIndex)
-            sampleIndex = (int) Mathf.Floor(sliderPercent * (samplePosList.Count - 1));
-        else
-            sampleIndex = (int) Mathf.Ceil(sliderPercent * (samplePosList.Count - 1));
+    public Quaternion GetSampleRot(int sampleIndex) {
         return sampleRotList[sampleIndex];
-    }
-
-    public int GetSampleIndexAtSliderPercent(float sliderPercent, bool floorSampleIndex) {
-        if (sliderPercent < 0f)
-            sliderPercent = 0f;
-        else if (sliderPercent > 1f)
-            sliderPercent = 1f;
-
-        int sampleIndex;
-        if (floorSampleIndex)
-            sampleIndex = (int) Mathf.Floor(sliderPercent * (samplePosList.Count - 1));
-        else
-            sampleIndex = (int) Mathf.Ceil(sliderPercent * (samplePosList.Count - 1));
-        return sampleIndex;
-    }
-
-    public float GetSnappedSliderPercentAtSampleIndex(int currSampleIndex) {
-        if(currSampleIndex < 0 || currSampleIndex > samplePosList.Count - 1) {
-            Debug.Log("Error in GetSnappedSliderPercent() in ToyScript.cs");
-            return 0.0f;
-        } else
-            return (float) currSampleIndex / ((float) samplePosList.Count - 1.0f);
     }
 
     public void StartPlaying() {
@@ -163,6 +130,38 @@ public class ToyScript : MonoBehaviour {
         paused = true;
     }
 
+
+
+    public IEnumerator MoveGhostToNextSample(int targetIndex) {
+        if (targetIndex <= endSampleIndex) {
+            float t = 0f;
+            while (t < 1) {
+                t += Time.deltaTime / sampleRate;
+                editGhostToy.transform.position = Vector3.Lerp(editGhostToy.transform.position, samplePosList[targetIndex], t);
+                editGhostToy.transform.rotation = Quaternion.Lerp(editGhostToy.transform.rotation, sampleRotList[targetIndex], t);
+                yield return null;
+            }
+            yield return MoveGhostToNextSample(targetIndex + 1);
+        } else {
+            editGhostToy.transform.position = samplePosList[beginSampleIndex];
+            editGhostToy.transform.rotation = sampleRotList[beginSampleIndex];
+            yield return MoveGhostToNextSample(beginSampleIndex + 1);
+        }
+    }
+
+    public void StartGhosting(int beginSampleIndexParam, int endSampleIndexParam) {
+        editGhostToy.SetActive(true);
+        beginSampleIndex = beginSampleIndexParam;
+        endSampleIndex = endSampleIndexParam;
+        editGhostToy.transform.position = samplePosList[beginSampleIndex];
+        editGhostToy.transform.rotation = sampleRotList[beginSampleIndex];
+        StartCoroutine(MoveGhostToNextSample(beginSampleIndex + 1));
+    }
+
+    public void StopGhosting() {
+        editGhostToy.SetActive(false);
+        StopAllCoroutines();
+    }
     //-------------------------------------------------------------------------------------
 
     public void DebugInstantiateSamples() {

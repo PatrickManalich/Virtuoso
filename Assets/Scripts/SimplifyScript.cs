@@ -27,14 +27,14 @@ public class SimplifyScript : MonoBehaviour {
         toyScript.DebugAddSample(sample1, Quaternion.identity);
         toyScript.DebugAddSample(sample2, Quaternion.identity);
         toyScript.DebugAddSample(sample3, Quaternion.identity);
-        toyScript.DebugInstantiateSamples();
+        //toyScript.DebugInstantiateSamples();
         toyScript.DebugReset();
         //toyScript.StartPlaying();
     }
 
     void Update () {
         if (Input.GetKeyDown("space")) {
-            toyScript.DebugDestroySamples();
+            //toyScript.DebugDestroySamples();
             toyScript.StopPlaying();
         }
 

@@ -14,21 +14,21 @@ public class EditSliderControllerScript : MonoBehaviour {
     private float sliderRailHalfLength;
     private float editSliderHalfLength;
     public float bufferDistance;
-    private int beginCurrSampleIndex;
-    private int endCurrSampleIndex;
+    private int beginSampleIndex;
+    private int endSampleIndex;
 
     void Start () {
         toyScript = toy.GetComponent<ToyScript>();
         sliderRailHalfLength = sliderRail.transform.localScale.y;
         editSliderHalfLength = editBeginSlider.transform.localScale.x;
         editBeginAid.SetActive(true);
-        editBeginAid.transform.position = toyScript.GetPositionAtSliderPercent(0, true);
-        editBeginAid.transform.rotation = toyScript.GetRotationAtSliderPercent(0, true);
-        beginCurrSampleIndex = toyScript.GetSampleIndexAtSliderPercent(0, true);
+        editBeginAid.transform.position = toyScript.GetSamplePos(0);
+        editBeginAid.transform.rotation = toyScript.GetSampleRot(0);
+        beginSampleIndex = 0;
         editEndAid.SetActive(true);
-        editEndAid.transform.position = toyScript.GetPositionAtSliderPercent(1, false);
-        editEndAid.transform.rotation = toyScript.GetRotationAtSliderPercent(1, false);
-        endCurrSampleIndex = toyScript.GetSampleIndexAtSliderPercent(1, false);
+        editEndAid.transform.position = toyScript.GetSamplePos(toyScript.GetSampleCount() - 1);
+        editEndAid.transform.rotation = toyScript.GetSampleRot(toyScript.GetSampleCount() - 1);
+        endSampleIndex = toyScript.GetSampleCount() - 1;
     }
     
     void Update () { }
@@ -40,9 +40,10 @@ public class EditSliderControllerScript : MonoBehaviour {
                 float sliderPercent = (editBeginSlider.transform.position.x + sliderRailHalfLength) / (sliderRailHalfLength * 2);
                 if (testBufferedPosition < editEndSlider.transform.position.x) {
                     editBeginSlider.transform.position = new Vector3(testPositionX, editBeginSlider.transform.position.y, editBeginSlider.transform.position.z);
-                    editBeginAid.transform.position = toyScript.GetPositionAtSliderPercent(sliderPercent, true);
-                    editBeginAid.transform.rotation = toyScript.GetRotationAtSliderPercent(sliderPercent, true);
-                    beginCurrSampleIndex = toyScript.GetSampleIndexAtSliderPercent(sliderPercent, true);
+                    int sampleIndex = (int)Mathf.Floor(sliderPercent * (toyScript.GetSampleCount() - 1));
+                    editBeginAid.transform.position = toyScript.GetSamplePos(sampleIndex);
+                    editBeginAid.transform.rotation = toyScript.GetSampleRot(sampleIndex);
+                    beginSampleIndex = sampleIndex;
                 }
             }
         } else {
@@ -51,9 +52,10 @@ public class EditSliderControllerScript : MonoBehaviour {
                 float sliderPercent = (editEndSlider.transform.position.x + sliderRailHalfLength) / (sliderRailHalfLength * 2);
                 if (testBufferedPosition > editBeginSlider.transform.position.x) {
                     editEndSlider.transform.position = new Vector3(testPositionX, editEndSlider.transform.position.y, editEndSlider.transform.position.z);
-                    editEndAid.transform.position = toyScript.GetPositionAtSliderPercent(sliderPercent, false);
-                    editEndAid.transform.rotation = toyScript.GetRotationAtSliderPercent(sliderPercent, false);
-                    endCurrSampleIndex = toyScript.GetSampleIndexAtSliderPercent(sliderPercent, false);
+                    int sampleIndex = (int)Mathf.Ceil(sliderPercent * (toyScript.GetSampleCount() - 1));
+                    editEndAid.transform.position = toyScript.GetSamplePos(sampleIndex);
+                    editEndAid.transform.rotation = toyScript.GetSampleRot(sampleIndex);
+                    endSampleIndex = sampleIndex;
                 }
             }
         }
@@ -61,15 +63,22 @@ public class EditSliderControllerScript : MonoBehaviour {
 
     public void SliderReleased(bool isBeginSlider) {
         if (isBeginSlider) {
-            float snappedSliderPercent = toyScript.GetSnappedSliderPercentAtSampleIndex(beginCurrSampleIndex);
+            float snappedSliderPercent = (float) beginSampleIndex/ ((float) toyScript.GetSampleCount() - 1.0f);
             float snappedSliderPositionX = (snappedSliderPercent * sliderRailHalfLength * 2) - sliderRailHalfLength;
             editBeginSlider.transform.position = new Vector3(snappedSliderPositionX, editBeginSlider.transform.position.y, editBeginSlider.transform.position.z);
         } else {
-            float snappedSliderPercent = toyScript.GetSnappedSliderPercentAtSampleIndex(endCurrSampleIndex);
+            float snappedSliderPercent = (float) endSampleIndex / ((float)toyScript.GetSampleCount() - 1.0f);
             float snappedSliderPositionX = (snappedSliderPercent * sliderRailHalfLength * 2) - sliderRailHalfLength;
             editEndSlider.transform.position = new Vector3(snappedSliderPositionX, editEndSlider.transform.position.y, editEndSlider.transform.position.z);
         }
     }
 
+    public int GetBeginSampleIndex() {
+        return beginSampleIndex;
+    }
+
+    public int GetEndSampleIndex() {
+        return endSampleIndex;
+    }
 
 }

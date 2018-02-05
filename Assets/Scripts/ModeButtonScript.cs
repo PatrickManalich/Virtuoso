@@ -37,7 +37,7 @@ public class ModeButtonScript : MonoBehaviour {
     void OnMouseDown() {
         if(mode == Mode.Play) {        // Switch to Edit Mode
             if (toyScript.AnimationRecorded()) {
-                playButtonScript.changeState(false);
+                playButtonScript.ChangeState(false);
                 playButton.SetActive(false);
                 playButtonText.SetActive(false);
                 playSlider.SetActive(false);
@@ -51,7 +51,7 @@ public class ModeButtonScript : MonoBehaviour {
             } else
                 Debug.Log("No animation has been recorded");
         } else if(mode == Mode.Edit) { // Switch to Play Mode
-            editGhostButtonScript.changeState(false);
+            editGhostButtonScript.ChangeState(false);
             editGhostButton.SetActive(false);
             editGhostButtonText.SetActive(false);
             editBeginSlider.SetActive(false);

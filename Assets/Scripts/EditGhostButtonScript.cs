@@ -6,38 +6,38 @@ public class EditGhostButtonScript : MonoBehaviour {
 
     private Vector3 screenPoint;
     private Vector3 offset;
+    public GameObject editGhostButtonText;
     public GameObject toy;
     private ToyScript toyScript;
-    public GameObject editGhostButtonText;
+    public GameObject editSliderController;
+    private EditSliderControllerScript editSliderControllerScript;
 
     void Start() {
         toyScript = toy.GetComponent<ToyScript>();
+        editSliderControllerScript = editSliderController.GetComponent<EditSliderControllerScript>();
     }
 
     void Update() { }
 
     void OnMouseDown() {
-        if (toyScript.AnimationRecorded()) {
-            if (GetComponent<Renderer>().material.color == Color.red)  // Bad implementation, should either pull from resources or access array of materials
-                changeState(true);
-            else
-                changeState(false);
-        } else
-            Debug.Log("No animation has been recorded");
+        if (GetComponent<Renderer>().material.color == Color.red)  // Bad implementation, should either pull from resources or access array of materials
+            ChangeState(true);
+        else
+            ChangeState(false);
     }
 
-    public void changeState(bool on) {
+    public void ChangeState(bool on) {
         if (on) {
             GetComponent<Renderer>().material.color = Color.green;
             editGhostButtonText.GetComponent<TextMesh>().text = "Ghost\n  On";
             //toyScript.DebugInstantiateSamples();
-            Debug.Log("StartEdit");
+            toyScript.StartGhosting(editSliderControllerScript.GetBeginSampleIndex(), editSliderControllerScript.GetEndSampleIndex());
         } else {
             GetComponent<Renderer>().material.color = Color.red;
             editGhostButtonText.GetComponent<TextMesh>().text = "Ghost\n  Off";
             //toyScript.DebugDestroySamples();
-            Debug.Log("StopEdit");
-        }
+            toyScript.StopGhosting();
+         }
     }
 
 }
