@@ -14,11 +14,11 @@ public class ToyScript : MonoBehaviour {
     public GameObject samplePrefab;
     public GameObject playSlider;
     private PlaySliderScript playSliderScript;
-    private int lastTargetIndex;
+    private int lastSampleIndex;
     private float lastT;
-    private Vector3 lastBaseSamplePos;
-    private Quaternion lastBaseSampleRot;
-    private bool paused;
+    private bool isPaused;
+    public bool isInEditMode;
+    public bool isAnimationRecorded;
     public GameObject editGhostToy;
     private int beginSampleIndex;
     private int endSampleIndex;
@@ -27,86 +27,86 @@ public class ToyScript : MonoBehaviour {
         samplePosList = new List<Vector3>();
         sampleRotList = new List<Quaternion>();
         playSliderScript = playSlider.GetComponent<PlaySliderScript>();
-        lastTargetIndex = 1;
+        lastSampleIndex = 0;
         lastT = 0f;
-        lastBaseSamplePos = transform.position;
-        lastBaseSampleRot = transform.rotation;
-        paused = false;
+        isPaused = false;
+        isAnimationRecorded = false;
     }
 
     void Update() { }
 
     void OnMouseDown() {
-        screenPoint = Camera.main.WorldToScreenPoint(transform.position);
-        offset = transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
-        startTime = Time.time;
-        samplePosList.Add(transform.position);
-        sampleRotList.Add(transform.rotation);
-    }
+        if (!isAnimationRecorded || isInEditMode) {
+            if (isInEditMode) {
 
-    void OnMouseDrag() {
-        Vector3 testScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
-        Vector3 testPosition = Camera.main.ScreenToWorldPoint(testScreenPoint) + offset;
-        transform.position = testPosition;
-        if((Time.time - startTime) > sampleRate) {
+            } else {
+
+            }
+            screenPoint = Camera.main.WorldToScreenPoint(transform.position);
+            offset = transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
             startTime = Time.time;
             samplePosList.Add(transform.position);
             sampleRotList.Add(transform.rotation);
-        }
+        } else            
+            Debug.Log("Please move to edit mode for editing");
+    }
 
+    void OnMouseDrag() {
+        if(!isAnimationRecorded || isInEditMode) {
+            Vector3 testScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
+            Vector3 testPosition = Camera.main.ScreenToWorldPoint(testScreenPoint) + offset;
+            transform.position = testPosition;
+            if ((Time.time - startTime) > sampleRate) {
+                startTime = Time.time;
+                samplePosList.Add(transform.position);
+                sampleRotList.Add(transform.rotation);
+            }
+        }        
     }
 
     void OnMouseUp() {
-        samplePosList.Add(transform.position);
-        sampleRotList.Add(transform.rotation);
-        transform.position = samplePosList[0];
-        transform.rotation = sampleRotList[0];
+        if (!isAnimationRecorded || isInEditMode) {
+            samplePosList.Add(transform.position);
+            sampleRotList.Add(transform.rotation);
+            transform.position = samplePosList[0];
+            transform.rotation = sampleRotList[0];
+            isAnimationRecorded = true;
+        }
     }
 
     public IEnumerator MoveToNextSample() {
-        if (lastTargetIndex < samplePosList.Count) {
-            if (!paused) {
-                lastBaseSamplePos = transform.position;
-                lastBaseSampleRot = transform.rotation;
+        if (lastSampleIndex < samplePosList.Count - 1) {
+            if (!isPaused)
                 lastT = 0f;
-            } else
-                paused = false;
+            else
+                isPaused = false;
             while (lastT < 1) {
                 lastT += Time.deltaTime / sampleRate;
-                transform.position = Vector3.Lerp(lastBaseSamplePos, samplePosList[lastTargetIndex], lastT);
-                transform.rotation = Quaternion.Lerp(lastBaseSampleRot, sampleRotList[lastTargetIndex], lastT);
-                float startingSamplePercent = ((float) lastTargetIndex - 1.0f) / ((float)samplePosList.Count - 1.0f);
-                float sliderPercent = lastT * (1.0f / ((float) samplePosList.Count - 1.0f)) + startingSamplePercent;
-                playSliderScript.CalibrateWithToy(sliderPercent);
+                transform.position = Vector3.Lerp(samplePosList[lastSampleIndex], samplePosList[lastSampleIndex + 1], lastT);
+                transform.rotation = Quaternion.Lerp(sampleRotList[lastSampleIndex], sampleRotList[lastSampleIndex + 1], lastT);
+                playSliderScript.CalibrateWithToy(lastSampleIndex, lastT);
                 yield return null;
             }
-            lastTargetIndex++;
+            lastSampleIndex++;
             yield return MoveToNextSample();
         } else {
             transform.position = samplePosList[0];
             transform.rotation = sampleRotList[0];
-            lastBaseSamplePos = transform.position;
-            lastBaseSampleRot = transform.rotation;
-            lastTargetIndex = 1;
+            lastSampleIndex = 0;
             yield return MoveToNextSample();
         }
     }
 
-    public bool AnimationRecorded() {
-        return samplePosList.Count > 0;
+    public void CalibrateWithPlaySlider(int startingSampleIndex, float t) {
+        lastT = t;
+        lastSampleIndex = startingSampleIndex;
+        transform.position = Vector3.Lerp(samplePosList[lastSampleIndex], samplePosList[lastSampleIndex + 1], lastT);
+        transform.rotation = Quaternion.Lerp(sampleRotList[lastSampleIndex], sampleRotList[lastSampleIndex + 1], lastT);
     }
 
-    public void CalibrateWithPlaySlider(float sliderPercent) {
-        if (sliderPercent < 0f)
-            sliderPercent = 0f;
-        else if (sliderPercent > 1f)
-            sliderPercent = 1f;
-        int startingSampleIndex = (int) Mathf.Floor(sliderPercent * (samplePosList.Count - 1));
-        lastTargetIndex = startingSampleIndex;
-        float startingSamplePercent = (float) startingSampleIndex / ((float) samplePosList.Count - 1.0f);
-        float t = (sliderPercent - startingSamplePercent) / (1.0f / ((float) samplePosList.Count - 1.0f));
-        transform.position = Vector3.Lerp(samplePosList[startingSampleIndex], samplePosList[startingSampleIndex+1], t);
-        transform.rotation = Quaternion.Lerp(sampleRotList[startingSampleIndex], sampleRotList[startingSampleIndex + 1], t);
+    public void CalibrateWithEditSlider(int beginSampleIndex) {
+        lastT = 0f;
+        lastSampleIndex = beginSampleIndex;
     }
 
     public int GetSampleCount() {
@@ -127,25 +127,23 @@ public class ToyScript : MonoBehaviour {
 
     public void StopPlaying() {
         StopAllCoroutines();
-        paused = true;
+        isPaused = true;
     }
 
-
-
-    public IEnumerator MoveGhostToNextSample(int targetIndex) {
-        if (targetIndex <= endSampleIndex) {
+    public IEnumerator MoveGhostToNextSample(int ghostSampleIndex) {
+        if (ghostSampleIndex < endSampleIndex) {
             float t = 0f;
             while (t < 1) {
                 t += Time.deltaTime / sampleRate;
-                editGhostToy.transform.position = Vector3.Lerp(editGhostToy.transform.position, samplePosList[targetIndex], t);
-                editGhostToy.transform.rotation = Quaternion.Lerp(editGhostToy.transform.rotation, sampleRotList[targetIndex], t);
+                editGhostToy.transform.position = Vector3.Lerp(samplePosList[ghostSampleIndex], samplePosList[ghostSampleIndex + 1], t);
+                editGhostToy.transform.rotation = Quaternion.Lerp(sampleRotList[ghostSampleIndex], sampleRotList[ghostSampleIndex + 1], t);
                 yield return null;
             }
-            yield return MoveGhostToNextSample(targetIndex + 1);
+            yield return MoveGhostToNextSample(ghostSampleIndex + 1);
         } else {
             editGhostToy.transform.position = samplePosList[beginSampleIndex];
             editGhostToy.transform.rotation = sampleRotList[beginSampleIndex];
-            yield return MoveGhostToNextSample(beginSampleIndex + 1);
+            yield return MoveGhostToNextSample(beginSampleIndex);
         }
     }
 
@@ -155,7 +153,7 @@ public class ToyScript : MonoBehaviour {
         endSampleIndex = endSampleIndexParam;
         editGhostToy.transform.position = samplePosList[beginSampleIndex];
         editGhostToy.transform.rotation = sampleRotList[beginSampleIndex];
-        StartCoroutine(MoveGhostToNextSample(beginSampleIndex + 1));
+        StartCoroutine(MoveGhostToNextSample(beginSampleIndex));
     }
 
     public void StopGhosting() {

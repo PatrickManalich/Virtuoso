@@ -21,11 +21,9 @@ public class EditSliderControllerScript : MonoBehaviour {
         toyScript = toy.GetComponent<ToyScript>();
         sliderRailHalfLength = sliderRail.transform.localScale.y;
         editSliderHalfLength = editBeginSlider.transform.localScale.x;
-        editBeginAid.SetActive(true);
         editBeginAid.transform.position = toyScript.GetSamplePos(0);
         editBeginAid.transform.rotation = toyScript.GetSampleRot(0);
         beginSampleIndex = 0;
-        editEndAid.SetActive(true);
         editEndAid.transform.position = toyScript.GetSamplePos(toyScript.GetSampleCount() - 1);
         editEndAid.transform.rotation = toyScript.GetSampleRot(toyScript.GetSampleCount() - 1);
         endSampleIndex = toyScript.GetSampleCount() - 1;

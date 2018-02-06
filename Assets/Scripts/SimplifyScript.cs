@@ -29,6 +29,7 @@ public class SimplifyScript : MonoBehaviour {
         toyScript.DebugAddSample(sample3, Quaternion.identity);
         //toyScript.DebugInstantiateSamples();
         toyScript.DebugReset();
+        toyScript.isAnimationRecorded = true;
         //toyScript.StartPlaying();
     }
 

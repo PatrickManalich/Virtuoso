@@ -17,7 +17,7 @@ public class PlayButtonScript : MonoBehaviour {
     void Update() { }
 
     void OnMouseDown() {
-        if (toyScript.AnimationRecorded()) {
+        if (toyScript.isAnimationRecorded) {
             if (GetComponent<Renderer>().material.color == Color.red)  // Bad implementation, should either pull from resources or access array of materials
                 ChangeState(true);
             else

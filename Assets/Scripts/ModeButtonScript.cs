@@ -17,8 +17,10 @@ public class ModeButtonScript : MonoBehaviour {
     public GameObject editGhostButtonText;
     public GameObject editBeginSlider;
     public GameObject editEndSlider;
+    public GameObject editBeginAid;
+    public GameObject editEndAid;
     public GameObject editSliderController;
-    public GameObject modeText;
+    public GameObject modeButtonText;
 
     void Start() {
         toyScript = toy.GetComponent<ToyScript>();
@@ -27,8 +29,9 @@ public class ModeButtonScript : MonoBehaviour {
         playButton.SetActive(true);
         playButtonText.SetActive(true);
         playSlider.SetActive(true);
-        modeText.SetActive(true);
-        modeText.GetComponent<TextMesh>().text = "Play Mode";
+        modeButtonText.SetActive(true);
+        modeButtonText.GetComponent<TextMesh>().text = "Play Mode";
+        toyScript.isInEditMode = false;
         mode = Mode.Play;
     }
 
@@ -36,7 +39,7 @@ public class ModeButtonScript : MonoBehaviour {
 
     void OnMouseDown() {
         if(mode == Mode.Play) {        // Switch to Edit Mode
-            if (toyScript.AnimationRecorded()) {
+            if (toyScript.isAnimationRecorded) {
                 playButtonScript.ChangeState(false);
                 playButton.SetActive(false);
                 playButtonText.SetActive(false);
@@ -45,8 +48,11 @@ public class ModeButtonScript : MonoBehaviour {
                 editGhostButtonText.SetActive(true);
                 editBeginSlider.SetActive(true);
                 editEndSlider.SetActive(true);
+                editBeginAid.SetActive(true);
+                editEndAid.SetActive(true);
                 editSliderController.SetActive(true);
-                modeText.GetComponent<TextMesh>().text = "Edit Mode";
+                modeButtonText.GetComponent<TextMesh>().text = "Edit Mode";
+                toyScript.isInEditMode = true;
                 mode = Mode.Edit;
             } else
                 Debug.Log("No animation has been recorded");
@@ -56,11 +62,14 @@ public class ModeButtonScript : MonoBehaviour {
             editGhostButtonText.SetActive(false);
             editBeginSlider.SetActive(false);
             editEndSlider.SetActive(false);
+            editBeginAid.SetActive(false);
+            editEndAid.SetActive(false);
             editSliderController.SetActive(false);
             playButton.SetActive(true);
             playButtonText.SetActive(true);
             playSlider.SetActive(true);
-            modeText.GetComponent<TextMesh>().text = "Play Mode";
+            modeButtonText.GetComponent<TextMesh>().text = "Play Mode";
+            toyScript.isInEditMode = false;
             mode = Mode.Play;
         }
 
