@@ -12,12 +12,10 @@ public class PlaySliderScript : MonoBehaviour {
     private float sliderRailHalfLength;
 
 
-    void Start() {
+    void Awake() {
         toyScript = toy.GetComponent<ToyScript>();
-        sliderRailHalfLength = sliderRail.transform.localScale.y;
+        sliderRailHalfLength = sliderRail.transform.localScale.y;        
     }
-
-    void Update() { }
 
     void OnMouseDown() {
         if (toyScript.isAnimationRecorded) {
@@ -38,14 +36,23 @@ public class PlaySliderScript : MonoBehaviour {
                 int startingSampleIndex = (int)Mathf.Floor(sliderPercent * (toyScript.GetSampleCount() - 1));
                 float startingSamplePercent = (float)startingSampleIndex / ((float)toyScript.GetSampleCount() - 1.0f);
                 float t = (sliderPercent - startingSamplePercent) / (1.0f / ((float)toyScript.GetSampleCount() - 1.0f));
-                toyScript.CalibrateWithPlaySlider(startingSampleIndex, t);
+                toyScript.ChangeLocation(startingSampleIndex, t);
             }
         }
     }
 
-    public void CalibrateWithToy(int sampleIndex, float t) {
+    public void CalibrateWithToyLocation(int sampleIndex, float t) {
         float startingSamplePercent = (float)sampleIndex / ((float)toyScript.GetSampleCount() - 1.0f);
         float sliderPercent = t * (1.0f / ((float)toyScript.GetSampleCount() - 1.0f)) + startingSamplePercent;
+        float newX = (sliderPercent * (sliderRailHalfLength * 2)) - sliderRailHalfLength;
+        Vector3 newPosition = new Vector3(newX, transform.position.y, transform.position.z);
+        transform.position = newPosition;
+    }
+
+    public void SetupLocations() {
+        if (toyScript.isAnimationRecorded)
+            toyScript.ChangeLocation(toyScript.GetLastSampleIndex(), 0f);
+        float sliderPercent = (float)toyScript.GetLastSampleIndex() / ((float)toyScript.GetSampleCount() - 1.0f);
         float newX = (sliderPercent * (sliderRailHalfLength * 2)) - sliderRailHalfLength;
         Vector3 newPosition = new Vector3(newX, transform.position.y, transform.position.z);
         transform.position = newPosition;

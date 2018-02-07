@@ -12,12 +12,10 @@ public class EditGhostButtonScript : MonoBehaviour {
     public GameObject editSliderController;
     private EditSliderControllerScript editSliderControllerScript;
 
-    void Start() {
+    void Awake() {
         toyScript = toy.GetComponent<ToyScript>();
         editSliderControllerScript = editSliderController.GetComponent<EditSliderControllerScript>();
     }
-
-    void Update() { }
 
     void OnMouseDown() {
         if (GetComponent<Renderer>().material.color == Color.red)  // Bad implementation, should either pull from resources or access array of materials

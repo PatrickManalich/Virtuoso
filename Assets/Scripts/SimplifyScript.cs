@@ -15,28 +15,35 @@ public class SimplifyScript : MonoBehaviour {
     Vector3 sample1;
     Vector3 sample2;
     Vector3 sample3;
+    Vector3 sample4;
+    bool flag;
 
     void Start () {
         toyScript = toy.GetComponent<ToyScript>();
-
         sample0 = new Vector3(-2f, 0.5f, -1.62f);
         sample1 = new Vector3(0f, 0.5f, -1.62f);
-        sample2 = new Vector3(2f, 0.5f, -1.62f);
-        sample3 = new Vector3(3f, 0.5f, -1.62f);
+        sample2 = new Vector3(1f, 0.5f, -1.62f);
+        sample3 = new Vector3(2f, 0.5f, -1.62f);
+        sample4 = new Vector3(3f, 0.5f, -1.62f);
         toyScript.DebugAddSample(sample0, Quaternion.identity);
         toyScript.DebugAddSample(sample1, Quaternion.identity);
         toyScript.DebugAddSample(sample2, Quaternion.identity);
         toyScript.DebugAddSample(sample3, Quaternion.identity);
-        //toyScript.DebugInstantiateSamples();
+        toyScript.DebugAddSample(sample4, Quaternion.identity);
         toyScript.DebugReset();
         toyScript.isAnimationRecorded = true;
-        //toyScript.StartPlaying();
+        flag = true;
     }
 
     void Update () {
         if (Input.GetKeyDown("space")) {
-            //toyScript.DebugDestroySamples();
-            toyScript.StopPlaying();
+            if (flag) {
+                toyScript.DebugInstantiateSamples();
+                flag = false;
+            } else {
+                toyScript.DebugDestroySamples();
+                flag = true;
+            }
         }
 
         float tiltAroundZ = Input.GetAxis("Horizontal") * tiltAngle;

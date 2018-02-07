@@ -10,7 +10,7 @@ public class PlayButtonScript : MonoBehaviour {
     private ToyScript toyScript;
     public GameObject playButtonText;
 
-    void Start() {
+    void Awake() {
         toyScript = toy.GetComponent<ToyScript>();
     }
 

@@ -6,7 +6,6 @@ public class ToyScript : MonoBehaviour {
 
     private Vector3 screenPoint;
     private Vector3 offset;
-    private bool playing;
     private float startTime;
     private List<Vector3> samplePosList;
     private List<Quaternion> sampleRotList;
@@ -22,10 +21,14 @@ public class ToyScript : MonoBehaviour {
     public GameObject editGhostToy;
     private int beginSampleIndex;
     private int endSampleIndex;
+    private List<Vector3> editSamplePosList;
+    private List<Quaternion> editSampleRotList;
 
-    void Start () {
+    void Awake () {
         samplePosList = new List<Vector3>();
         sampleRotList = new List<Quaternion>();
+        editSamplePosList = new List<Vector3>();
+        editSampleRotList = new List<Quaternion>();
         playSliderScript = playSlider.GetComponent<PlaySliderScript>();
         lastSampleIndex = 0;
         lastT = 0f;
@@ -33,44 +36,63 @@ public class ToyScript : MonoBehaviour {
         isAnimationRecorded = false;
     }
 
-    void Update() { }
-
     void OnMouseDown() {
         if (!isAnimationRecorded || isInEditMode) {
-            if (isInEditMode) {
-
-            } else {
-
-            }
             screenPoint = Camera.main.WorldToScreenPoint(transform.position);
             offset = transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
             startTime = Time.time;
-            samplePosList.Add(transform.position);
-            sampleRotList.Add(transform.rotation);
+            if (isInEditMode) {
+                editSamplePosList.Clear();
+                editSampleRotList.Clear();
+            } else {
+                samplePosList.Add(transform.position);
+                sampleRotList.Add(transform.rotation);
+            }        
         } else            
             Debug.Log("Please move to edit mode for editing");
     }
 
     void OnMouseDrag() {
         if(!isAnimationRecorded || isInEditMode) {
-            Vector3 testScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
-            Vector3 testPosition = Camera.main.ScreenToWorldPoint(testScreenPoint) + offset;
-            transform.position = testPosition;
+            Vector3 currScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
+            Vector3 currPosition = Camera.main.ScreenToWorldPoint(currScreenPoint) + offset;
+            transform.position = currPosition;
             if ((Time.time - startTime) > sampleRate) {
                 startTime = Time.time;
-                samplePosList.Add(transform.position);
-                sampleRotList.Add(transform.rotation);
+                if (isInEditMode) {
+                    //Debug.Log(samplePosList.Coun);
+                    if(editSamplePosList.Count < (endSampleIndex - beginSampleIndex - 1)) {
+                        editSamplePosList.Add(transform.position);
+                        editSampleRotList.Add(transform.rotation);
+                        //Debug.Log("added");
+                    }                  
+                } else {
+                    samplePosList.Add(transform.position);
+                    sampleRotList.Add(transform.rotation);
+                }
             }
         }        
     }
 
     void OnMouseUp() {
         if (!isAnimationRecorded || isInEditMode) {
-            samplePosList.Add(transform.position);
-            sampleRotList.Add(transform.rotation);
-            transform.position = samplePosList[0];
-            transform.rotation = sampleRotList[0];
-            isAnimationRecorded = true;
+            if (isInEditMode) {
+                transform.position = samplePosList[beginSampleIndex];
+                transform.rotation = sampleRotList[beginSampleIndex];
+                lastSampleIndex = beginSampleIndex;
+                lastT = 0f;
+                for(int i = beginSampleIndex + 1, j = 0; i < endSampleIndex; i++, j++) {
+                    samplePosList[i] = editSamplePosList[j];
+                    sampleRotList[i] = editSampleRotList[j];
+                }
+            }
+            else {
+                samplePosList.Add(transform.position);
+                sampleRotList.Add(transform.rotation);
+                transform.position = samplePosList[0];
+                transform.rotation = sampleRotList[0];
+                isAnimationRecorded = true;
+            }
         }
     }
 
@@ -84,7 +106,7 @@ public class ToyScript : MonoBehaviour {
                 lastT += Time.deltaTime / sampleRate;
                 transform.position = Vector3.Lerp(samplePosList[lastSampleIndex], samplePosList[lastSampleIndex + 1], lastT);
                 transform.rotation = Quaternion.Lerp(sampleRotList[lastSampleIndex], sampleRotList[lastSampleIndex + 1], lastT);
-                playSliderScript.CalibrateWithToy(lastSampleIndex, lastT);
+                playSliderScript.CalibrateWithToyLocation(lastSampleIndex, lastT);
                 yield return null;
             }
             lastSampleIndex++;
@@ -93,37 +115,31 @@ public class ToyScript : MonoBehaviour {
             transform.position = samplePosList[0];
             transform.rotation = sampleRotList[0];
             lastSampleIndex = 0;
+            lastT = 0f;
             yield return MoveToNextSample();
         }
     }
 
-    public void CalibrateWithPlaySlider(int startingSampleIndex, float t) {
+    public void ChangeLocation(int startingSampleIndex, float t) {
         lastT = t;
         lastSampleIndex = startingSampleIndex;
         transform.position = Vector3.Lerp(samplePosList[lastSampleIndex], samplePosList[lastSampleIndex + 1], lastT);
         transform.rotation = Quaternion.Lerp(sampleRotList[lastSampleIndex], sampleRotList[lastSampleIndex + 1], lastT);
     }
 
-    public void CalibrateWithEditSlider(int beginSampleIndex) {
-        lastT = 0f;
-        lastSampleIndex = beginSampleIndex;
+    public int GetSampleCount() { return samplePosList.Count; }
+
+    public Vector3 GetSamplePos(int sampleIndex) { return samplePosList[sampleIndex]; }
+
+    public Quaternion GetSampleRot(int sampleIndex) { return sampleRotList[sampleIndex]; }
+
+    public int GetLastSampleIndex() { return lastSampleIndex; }
+
+    public void PRINTYO() {
+        Debug.Log("PRINTYO");
     }
 
-    public int GetSampleCount() {
-        return samplePosList.Count;
-    }
-
-    public Vector3 GetSamplePos(int sampleIndex) {
-        return samplePosList[sampleIndex];
-    }
-
-    public Quaternion GetSampleRot(int sampleIndex) {
-        return sampleRotList[sampleIndex];
-    }
-
-    public void StartPlaying() {
-        StartCoroutine(MoveToNextSample());
-    }
+    public void StartPlaying() { StartCoroutine(MoveToNextSample()); }
 
     public void StopPlaying() {
         StopAllCoroutines();
@@ -160,6 +176,7 @@ public class ToyScript : MonoBehaviour {
         editGhostToy.SetActive(false);
         StopAllCoroutines();
     }
+
     //-------------------------------------------------------------------------------------
 
     public void DebugInstantiateSamples() {

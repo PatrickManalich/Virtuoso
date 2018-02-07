@@ -12,6 +12,7 @@ public class ModeButtonScript : MonoBehaviour {
     private PlayButtonScript playButtonScript;
     public GameObject playButtonText;
     public GameObject playSlider;
+    private PlaySliderScript playSliderScript;
     public GameObject editGhostButton;
     private EditGhostButtonScript editGhostButtonScript;
     public GameObject editGhostButtonText;
@@ -20,12 +21,15 @@ public class ModeButtonScript : MonoBehaviour {
     public GameObject editBeginAid;
     public GameObject editEndAid;
     public GameObject editSliderController;
+    private EditSliderControllerScript editSliderControllerScript;
     public GameObject modeButtonText;
 
-    void Start() {
+    void Awake() {
         toyScript = toy.GetComponent<ToyScript>();
         playButtonScript = playButton.GetComponent<PlayButtonScript>();
+        playSliderScript = playSlider.GetComponent<PlaySliderScript>();
         editGhostButtonScript = editGhostButton.GetComponent<EditGhostButtonScript>();
+        editSliderControllerScript = editSliderController.GetComponent<EditSliderControllerScript>();
         playButton.SetActive(true);
         playButtonText.SetActive(true);
         playSlider.SetActive(true);
@@ -34,8 +38,6 @@ public class ModeButtonScript : MonoBehaviour {
         toyScript.isInEditMode = false;
         mode = Mode.Play;
     }
-
-    void Update() { }
 
     void OnMouseDown() {
         if(mode == Mode.Play) {        // Switch to Edit Mode
@@ -51,6 +53,7 @@ public class ModeButtonScript : MonoBehaviour {
                 editBeginAid.SetActive(true);
                 editEndAid.SetActive(true);
                 editSliderController.SetActive(true);
+                editSliderControllerScript.SetupLocations();
                 modeButtonText.GetComponent<TextMesh>().text = "Edit Mode";
                 toyScript.isInEditMode = true;
                 mode = Mode.Edit;
@@ -68,6 +71,7 @@ public class ModeButtonScript : MonoBehaviour {
             playButton.SetActive(true);
             playButtonText.SetActive(true);
             playSlider.SetActive(true);
+            playSliderScript.SetupLocations();
             modeButtonText.GetComponent<TextMesh>().text = "Play Mode";
             toyScript.isInEditMode = false;
             mode = Mode.Play;

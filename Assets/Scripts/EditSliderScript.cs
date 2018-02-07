@@ -10,11 +10,9 @@ public class EditSliderScript : MonoBehaviour {
     public GameObject editSliderController;
     private EditSliderControllerScript editSliderControllerScript;
     
-    void Start() {
+    void Awake() {
         editSliderControllerScript = editSliderController.GetComponent<EditSliderControllerScript>();
     }
-
-    void Update() { }
 
     void OnMouseDown() {
         screenPoint = Camera.main.WorldToScreenPoint(transform.position);
