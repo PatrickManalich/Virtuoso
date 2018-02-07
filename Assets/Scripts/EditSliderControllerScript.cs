@@ -58,13 +58,9 @@ public class EditSliderControllerScript : MonoBehaviour {
         }
     }
 
-    public int GetBeginSampleIndex() {
-        return beginSampleIndex;
-    }
+    public int GetBeginSampleIndex() { return beginSampleIndex; }
 
-    public int GetEndSampleIndex() {
-        return endSampleIndex;
-    }
+    public int GetEndSampleIndex() { return endSampleIndex; }
 
     public void SetupLocations() {
         float testBeginSliderPercent = (float)toyScript.GetLastSampleIndex() / ((float)toyScript.GetSampleCount() - 1.0f);
