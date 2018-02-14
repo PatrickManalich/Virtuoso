@@ -9,7 +9,6 @@ public class ToyScript : MonoBehaviour {
     private float startTime;
     private List<Vector3> samplePosList;
     private List<Quaternion> sampleRotList;
-    public float sampleRate;
     public GameObject samplePrefab;
     public GameObject playSlider;
     private PlaySliderScript playSliderScript;
@@ -23,6 +22,8 @@ public class ToyScript : MonoBehaviour {
     private int endSampleIndex;
     private List<Vector3> editSamplePosList;
     private List<Quaternion> editSampleRotList;
+    public GameObject speedButton;
+    private SpeedButtonScript speedButtonScript;
 
     void Awake () {
         samplePosList = new List<Vector3>();
@@ -30,6 +31,7 @@ public class ToyScript : MonoBehaviour {
         editSamplePosList = new List<Vector3>();
         editSampleRotList = new List<Quaternion>();
         playSliderScript = playSlider.GetComponent<PlaySliderScript>();
+        speedButtonScript = speedButton.GetComponent<SpeedButtonScript>();
         lastSampleIndex = 0;
         lastT = 0f;
         isPaused = false;
@@ -57,7 +59,7 @@ public class ToyScript : MonoBehaviour {
             Vector3 currScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
             Vector3 currPosition = Camera.main.ScreenToWorldPoint(currScreenPoint) + offset;
             transform.position = currPosition;
-            if ((Time.time - startTime) > sampleRate) {
+            if ((Time.time - startTime) > speedButtonScript.GetSampleRate()) {
                 startTime = Time.time;
                 if (isInEditMode) {
                     //Debug.Log(samplePosList.Coun);
@@ -103,7 +105,7 @@ public class ToyScript : MonoBehaviour {
             else
                 isPaused = false;
             while (lastT < 1) {
-                lastT += Time.deltaTime / sampleRate;
+                lastT += Time.deltaTime / speedButtonScript.GetSampleRate();
                 transform.position = Vector3.Lerp(samplePosList[lastSampleIndex], samplePosList[lastSampleIndex + 1], lastT);
                 transform.rotation = Quaternion.Lerp(sampleRotList[lastSampleIndex], sampleRotList[lastSampleIndex + 1], lastT);
                 playSliderScript.CalibrateWithToyLocation(lastSampleIndex, lastT);
@@ -150,7 +152,7 @@ public class ToyScript : MonoBehaviour {
         if (ghostSampleIndex < endSampleIndex) {
             float t = 0f;
             while (t < 1) {
-                t += Time.deltaTime / sampleRate;
+                t += Time.deltaTime / speedButtonScript.GetSampleRate();
                 editGhostToy.transform.position = Vector3.Lerp(samplePosList[ghostSampleIndex], samplePosList[ghostSampleIndex + 1], t);
                 editGhostToy.transform.rotation = Quaternion.Lerp(sampleRotList[ghostSampleIndex], sampleRotList[ghostSampleIndex + 1], t);
                 yield return null;
