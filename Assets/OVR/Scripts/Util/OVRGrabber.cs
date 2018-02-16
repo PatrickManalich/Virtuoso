@@ -250,6 +250,7 @@ public class OVRGrabber : MonoBehaviour
             {
                 closestGrabbable.grabbedBy.OffhandGrabbed(closestGrabbable);
             }
+            Debug.Log("GrabBegin Object");
 
             m_grabbedObj = closestGrabbable;
             m_grabbedObj.GrabBegin(this, closestGrabbableCollider);
@@ -306,7 +307,7 @@ public class OVRGrabber : MonoBehaviour
         {
             return;
         }
-
+        Debug.Log("MoveGrabbed Object");
         Rigidbody grabbedRigidbody = m_grabbedObj.grabbedRigidbody;
         Vector3 grabbablePosition = pos + rot * m_grabbedObjectPosOff;
         Quaternion grabbableRotation = rot * m_grabbedObjectRotOff;
@@ -327,7 +328,8 @@ public class OVRGrabber : MonoBehaviour
     {
         if (m_grabbedObj != null)
         {
-			OVRPose localPose = new OVRPose { position = OVRInput.GetLocalControllerPosition(m_controller), orientation = OVRInput.GetLocalControllerRotation(m_controller) };
+            Debug.Log("GrabbedEnd Object");
+            OVRPose localPose = new OVRPose { position = OVRInput.GetLocalControllerPosition(m_controller), orientation = OVRInput.GetLocalControllerRotation(m_controller) };
             OVRPose offsetPose = new OVRPose { position = m_anchorOffsetPosition, orientation = m_anchorOffsetRotation };
             localPose = localPose * offsetPose;
 
