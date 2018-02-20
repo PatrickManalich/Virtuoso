@@ -137,10 +137,6 @@ public class ToyScript : MonoBehaviour {
 
     public int GetLastSampleIndex() { return lastSampleIndex; }
 
-    public void PRINTYO() {
-        Debug.Log("PRINTYO");
-    }
-
     public void StartPlaying() { StartCoroutine(MoveToNextSample()); }
 
     public void StopPlaying() {

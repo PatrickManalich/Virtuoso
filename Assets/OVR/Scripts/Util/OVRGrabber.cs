@@ -166,36 +166,44 @@ public class OVRGrabber : MonoBehaviour
 
     void OnTriggerEnter(Collider otherCollider)
     {
-        // Get the grab trigger
-		OVRGrabbable grabbable = otherCollider.GetComponent<OVRGrabbable>() ?? otherCollider.GetComponentInParent<OVRGrabbable>();
-        if (grabbable == null) return;
+        if(otherCollider.tag == "Band") {
+            if (otherCollider.name == "TestBandFBX") {
+                otherCollider.gameObject.GetComponent<TestBandScript>().Hovering();
+            }
+        } else {
+            // Get the grab trigger
+            OVRGrabbable grabbable = otherCollider.GetComponent<OVRGrabbable>() ?? otherCollider.GetComponentInParent<OVRGrabbable>();
+            if (grabbable == null) return;
 
-        // Add the grabbable
-        int refCount = 0;
-        m_grabCandidates.TryGetValue(grabbable, out refCount);
-        m_grabCandidates[grabbable] = refCount + 1;
+            // Add the grabbable
+            int refCount = 0;
+            m_grabCandidates.TryGetValue(grabbable, out refCount);
+            m_grabCandidates[grabbable] = refCount + 1;
+        }
     }
 
     void OnTriggerExit(Collider otherCollider)
     {
-		OVRGrabbable grabbable = otherCollider.GetComponent<OVRGrabbable>() ?? otherCollider.GetComponentInParent<OVRGrabbable>();
-        if (grabbable == null) return;
+        if(otherCollider.tag == "Band") {
+            if (otherCollider.name == "TestBandFBX") {
+                otherCollider.gameObject.GetComponent<TestBandScript>().Unhovering();
+            }
+        } else {
+            OVRGrabbable grabbable = otherCollider.GetComponent<OVRGrabbable>() ?? otherCollider.GetComponentInParent<OVRGrabbable>();
+            if (grabbable == null) return;
 
-        // Remove the grabbable
-        int refCount = 0;
-        bool found = m_grabCandidates.TryGetValue(grabbable, out refCount);
-        if (!found)
-        {
-            return;
-        }
+            // Remove the grabbable
+            int refCount = 0;
+            bool found = m_grabCandidates.TryGetValue(grabbable, out refCount);
+            if (!found) {
+                return;
+            }
 
-        if (refCount > 1)
-        {
-            m_grabCandidates[grabbable] = refCount - 1;
-        }
-        else
-        {
-            m_grabCandidates.Remove(grabbable);
+            if (refCount > 1) {
+                m_grabCandidates[grabbable] = refCount - 1;
+            } else {
+                m_grabCandidates.Remove(grabbable);
+            }
         }
     }
 
@@ -250,7 +258,6 @@ public class OVRGrabber : MonoBehaviour
             {
                 closestGrabbable.grabbedBy.OffhandGrabbed(closestGrabbable);
             }
-            Debug.Log("GrabBegin Object");
 
             m_grabbedObj = closestGrabbable;
             m_grabbedObj.GrabBegin(this, closestGrabbableCollider);
@@ -307,7 +314,6 @@ public class OVRGrabber : MonoBehaviour
         {
             return;
         }
-        Debug.Log("MoveGrabbed Object");
         Rigidbody grabbedRigidbody = m_grabbedObj.grabbedRigidbody;
         Vector3 grabbablePosition = pos + rot * m_grabbedObjectPosOff;
         Quaternion grabbableRotation = rot * m_grabbedObjectRotOff;
@@ -328,7 +334,6 @@ public class OVRGrabber : MonoBehaviour
     {
         if (m_grabbedObj != null)
         {
-            Debug.Log("GrabbedEnd Object");
             OVRPose localPose = new OVRPose { position = OVRInput.GetLocalControllerPosition(m_controller), orientation = OVRInput.GetLocalControllerRotation(m_controller) };
             OVRPose offsetPose = new OVRPose { position = m_anchorOffsetPosition, orientation = m_anchorOffsetRotation };
             localPose = localPose * offsetPose;
