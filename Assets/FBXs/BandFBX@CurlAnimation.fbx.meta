@@ -1,34 +1,34 @@
 fileFormatVersion: 2
-guid: e09b7f789054c254db3814952d812ee4
-timeCreated: 1519105072
+guid: 09d880caa48c6eb4dba8bd0ad539072d
+timeCreated: 1519346901
 licenseType: Free
 ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
-    100000: joint1
-    100002: joint10
-    100004: joint11
-    100006: joint2
-    100008: joint3
-    100010: joint4
-    100012: joint5
-    100014: joint6
-    100016: joint7
-    100018: joint8
-    100020: joint9
-    100022: //RootNode
-    400000: joint1
-    400002: joint10
-    400004: joint11
-    400006: joint2
-    400008: joint3
-    400010: joint4
-    400012: joint5
-    400014: joint6
-    400016: joint7
-    400018: joint8
-    400020: joint9
-    400022: //RootNode
+    100000: Joint1
+    100002: Joint10
+    100004: Joint2
+    100006: Joint3
+    100008: Joint4
+    100010: Joint5
+    100012: Joint6
+    100014: Joint7
+    100016: Joint8
+    100018: Joint9
+    100020: //RootNode
+    100022: RootJoint
+    400000: Joint1
+    400002: Joint10
+    400004: Joint2
+    400006: Joint3
+    400008: Joint4
+    400010: Joint5
+    400012: Joint6
+    400014: Joint7
+    400016: Joint8
+    400018: Joint9
+    400020: //RootNode
+    400022: RootJoint
     7400000: Take 001
     9500000: //RootNode
   externalObjects: {}
