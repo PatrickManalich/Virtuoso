@@ -1634,6 +1634,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grabBegin: 0.55
   grabEnd: 0.35
+  bandTrigger: {fileID: 2046708549}
   m_parentHeldObject: 1
   m_gripTransform: {fileID: 1536470951}
   m_grabVolumes:
@@ -1907,6 +1908,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grabBegin: 0.55
   grabEnd: 0.35
+  bandTrigger: {fileID: 0}
   m_parentHeldObject: 1
   m_gripTransform: {fileID: 2017409619}
   m_grabVolumes:
