@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayBandScript : BandScript {
+public class GhostBandScript : BandScript {
 
-    public Material pauseMaterial;
-    public Material playMaterial;
+    public Material offMaterial;
+    public Material onMaterial;
     private Animator animator;
     private new AnimationClip animation;
     private Renderer meshRenderer;
@@ -18,9 +18,9 @@ public class PlayBandScript : BandScript {
         animator = GetComponent<Animator>();
         animation = animator.runtimeAnimatorController.animationClips[1];
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();
-        meshRenderer.material = pauseMaterial;
+        meshRenderer.material = offMaterial;
         Vector3 parentPos = transform.parent.transform.position;
-        transform.position = new Vector3(parentPos.x - 0.063f, parentPos.y - 0.025f, parentPos.z - 0.135f);
+        transform.position = new Vector3(parentPos.x - 0.063f, parentPos.y - 0.025f, parentPos.z - 0.185f);
         transform.Rotate(-75, 90, 0);
         transform.localScale = new Vector3(1.7f, 1.7f, 1.7f);
         alive = false;
@@ -51,13 +51,13 @@ public class PlayBandScript : BandScript {
     public override void IncreaseLifetime() {
         lifetime = Time.time;
     }
-
+    
     public override void Toggle() {
         if (toggle) {
-            meshRenderer.material = pauseMaterial;
+            meshRenderer.material = offMaterial;
             toggle = false;
         } else {
-            meshRenderer.material = playMaterial;
+            meshRenderer.material = onMaterial;
             toggle = true;
         }
     }
