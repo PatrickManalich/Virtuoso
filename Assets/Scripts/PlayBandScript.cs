@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class PlayBandScript : BandScript {
 
-    public Material pauseMaterial;
-    public Material playMaterial;
     private Animator animator;
     private new AnimationClip animation;
     private Renderer meshRenderer;
     private bool alive;
     private float lifetime;
     private bool toggle;
+
+    public Material pauseMaterial;
+    public Material playMaterial;
 
 
     private void Awake() {
@@ -20,9 +21,9 @@ public class PlayBandScript : BandScript {
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();
         meshRenderer.material = pauseMaterial;
         Vector3 parentPos = transform.parent.transform.position;
-        transform.position = new Vector3(parentPos.x - 0.063f, parentPos.y - 0.025f, parentPos.z - 0.135f);
+        transform.position = new Vector3(parentPos.x - 0.053f, parentPos.y, parentPos.z - 0.17f);
         transform.Rotate(-75, 90, 0);
-        transform.localScale = new Vector3(1.7f, 1.7f, 1.7f);
+        transform.localScale = new Vector3(0.85f, 0.85f, 0.85f);
         alive = false;
         lifetime = 0.0f;
         toggle = false;

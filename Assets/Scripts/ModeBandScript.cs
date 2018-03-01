@@ -4,28 +4,41 @@ using UnityEngine;
 
 public class ModeBandScript : BandScript {
 
-    public Material viewMaterial;
-    public Material editMaterial;
+    private enum Mode { View, Edit };
+    private Mode mode;
     private Animator animator;
     private new AnimationClip animation;
     private Renderer meshRenderer;
+    //private PlayBandScript playBandScript;
+    //private GhostBandScript ghostBandScript;
     private bool alive;
     private float lifetime;
     private bool toggle;
+
+    public Material viewMaterial;
+    public Material editMaterial;
+    public GameObject playBand;
+    public GameObject ghostBand;
 
 
     private void Awake() {
         animator = GetComponent<Animator>();
         animation = animator.runtimeAnimatorController.animationClips[1];
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();
+        //playBandScript = playBand.GetComponent<PlayBandScript>();
+        //ghostBandScript = ghostBand.GetComponent<GhostBandScript>();
         meshRenderer.material = viewMaterial;
         Vector3 parentPos = transform.parent.transform.position;
-        transform.position = new Vector3(parentPos.x - 0.063f, parentPos.y - 0.025f, parentPos.z - 0.235f);
+        transform.position = new Vector3(parentPos.x - 0.053f, parentPos.y, parentPos.z - 0.135f);
         transform.Rotate(-75, 90, 0);
-        transform.localScale = new Vector3(1.7f, 1.7f, 1.7f);
+        transform.localScale = new Vector3(0.85f, 0.85f, 0.85f);
         alive = false;
         lifetime = 0.0f;
-        toggle = false;
+    }
+
+    private void Start() {
+        ghostBand.SetActive(false);
+        mode = Mode.View;
     }
 
     private IEnumerator CheckIfStillAlive() {
@@ -53,12 +66,16 @@ public class ModeBandScript : BandScript {
     }
 
     public override void Toggle() {
-        if (toggle) {
-            meshRenderer.material = viewMaterial;
-            toggle = false;
-        } else {
+        if (mode == Mode.View) {
             meshRenderer.material = editMaterial;
-            toggle = true;
+            playBand.SetActive(false);
+            ghostBand.SetActive(true);
+            mode = Mode.Edit;
+        } else {
+            meshRenderer.material = viewMaterial;
+            ghostBand.SetActive(false);
+            playBand.SetActive(true);
+            mode = Mode.View;
         }
     }
 

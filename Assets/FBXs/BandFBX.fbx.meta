@@ -1,38 +1,24 @@
 fileFormatVersion: 2
 guid: 89d0709518b2ce6489d7f5f630e4a2ae
-timeCreated: 1519361884
+timeCreated: 1519872854
 licenseType: Free
 ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
     100000: //RootNode
     100002: Joint1
-    100004: Joint10
-    100006: Joint2
-    100008: Joint3
-    100010: Joint4
-    100012: Joint5
-    100014: Joint6
-    100016: Joint7
-    100018: Joint8
-    100020: Joint9
-    100022: Mesh
-    100024: RootJoint
+    100004: Joint2
+    100006: Joint3
+    100008: Joint4
+    100010: Mesh
+    100012: RootJoint
     400000: //RootNode
     400002: Joint1
-    400004: Joint10
-    400006: Joint2
-    400008: Joint3
-    400010: Joint4
-    400012: Joint5
-    400014: Joint6
-    400016: Joint7
-    400018: Joint8
-    400020: Joint9
-    400022: Mesh
-    400024: RootJoint
-    2300000: Mesh
-    3300000: Mesh
+    400004: Joint2
+    400006: Joint3
+    400008: Joint4
+    400010: Mesh
+    400012: RootJoint
     4300000: Mesh
     9500000: //RootNode
     13700000: Mesh

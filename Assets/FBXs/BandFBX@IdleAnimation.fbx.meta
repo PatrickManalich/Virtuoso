@@ -1,34 +1,22 @@
 fileFormatVersion: 2
-guid: d73e8f22e01e14749addbb4e34e12dbc
-timeCreated: 1519347166
+guid: 2bbe02d05ca7a4249b4d1c28947b9490
+timeCreated: 1519872852
 licenseType: Free
 ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
-    100000: Joint1
-    100002: Joint10
+    100000: //RootNode
+    100002: Joint1
     100004: Joint2
     100006: Joint3
     100008: Joint4
-    100010: Joint5
-    100012: Joint6
-    100014: Joint7
-    100016: Joint8
-    100018: Joint9
-    100020: //RootNode
-    100022: RootJoint
-    400000: Joint1
-    400002: Joint10
+    100010: RootJoint
+    400000: //RootNode
+    400002: Joint1
     400004: Joint2
     400006: Joint3
     400008: Joint4
-    400010: Joint5
-    400012: Joint6
-    400014: Joint7
-    400016: Joint8
-    400018: Joint9
-    400020: //RootNode
-    400022: RootJoint
+    400010: RootJoint
     7400000: Take 001
     9500000: //RootNode
   externalObjects: {}

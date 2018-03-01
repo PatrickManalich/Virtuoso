@@ -5,7 +5,7 @@ using UnityEngine;
 public class BandTriggerScript : MonoBehaviour {
 
 
-    OvrAvatar ovrAvatarScript;
+    private OvrAvatar ovrAvatarScript;
     private GameObject hoveringBand;
     private int numOfBandsAlive;
 
@@ -18,11 +18,10 @@ public class BandTriggerScript : MonoBehaviour {
 
     private IEnumerator SetPosition() {
         if (!ovrAvatarScript.GetHandTransform(OvrAvatar.HandType.Right, OvrAvatar.HandJoint.IndexTip)) {
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(1f);
             yield return SetPosition();
         } else {
-            Transform indexTip = ovrAvatarScript.GetHandTransform(OvrAvatar.HandType.Right, OvrAvatar.HandJoint.IndexTip);
-            transform.position = indexTip.position;
+            transform.position = ovrAvatarScript.GetHandTransform(OvrAvatar.HandType.Right, OvrAvatar.HandJoint.IndexTip).position;
             yield return null;
         }
     }

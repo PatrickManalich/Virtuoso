@@ -62,11 +62,9 @@ public class ToyScript : MonoBehaviour {
             if ((Time.time - startTime) > speedButtonScript.GetSampleRate()) {
                 startTime = Time.time;
                 if (isInEditMode) {
-                    //Debug.Log(samplePosList.Coun);
                     if(editSamplePosList.Count < (endSampleIndex - beginSampleIndex - 1)) {
                         editSamplePosList.Add(transform.position);
                         editSampleRotList.Add(transform.rotation);
-                        //Debug.Log("added");
                     }                  
                 } else {
                     samplePosList.Add(transform.position);

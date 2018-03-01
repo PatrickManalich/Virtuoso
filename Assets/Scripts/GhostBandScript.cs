@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class GhostBandScript : BandScript {
 
-    public Material offMaterial;
-    public Material onMaterial;
     private Animator animator;
     private new AnimationClip animation;
     private Renderer meshRenderer;
     private bool alive;
     private float lifetime;
     private bool toggle;
+
+    public Material offMaterial;
+    public Material onMaterial;
 
 
     private void Awake() {
@@ -20,9 +21,9 @@ public class GhostBandScript : BandScript {
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();
         meshRenderer.material = offMaterial;
         Vector3 parentPos = transform.parent.transform.position;
-        transform.position = new Vector3(parentPos.x - 0.063f, parentPos.y - 0.025f, parentPos.z - 0.185f);
+        transform.position = new Vector3(parentPos.x - 0.053f, parentPos.y, parentPos.z - 0.17f);
         transform.Rotate(-75, 90, 0);
-        transform.localScale = new Vector3(1.7f, 1.7f, 1.7f);
+        transform.localScale = new Vector3(0.85f, 0.85f, 0.85f);
         alive = false;
         lifetime = 0.0f;
         toggle = false;
