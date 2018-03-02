@@ -4,16 +4,10 @@ using UnityEngine;
 
 public class ModeBandScript : BandScript {
 
-    private enum Mode { View, Edit };
-    private Mode mode;
-    private Animator animator;
-    private new AnimationClip animation;
+    private enum ToggleState { View, Edit };
+    private ToggleState toggleState;
     private Renderer meshRenderer;
-    //private PlayBandScript playBandScript;
-    //private GhostBandScript ghostBandScript;
-    private bool alive;
-    private float lifetime;
-    private bool toggle;
+    private float toggleAnimationLength;
 
     public Material viewMaterial;
     public Material editMaterial;
@@ -22,61 +16,41 @@ public class ModeBandScript : BandScript {
 
 
     private void Awake() {
-        animator = GetComponent<Animator>();
-        animation = animator.runtimeAnimatorController.animationClips[1];
+        base.InitializeBand();
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();
-        //playBandScript = playBand.GetComponent<PlayBandScript>();
-        //ghostBandScript = ghostBand.GetComponent<GhostBandScript>();
         meshRenderer.material = viewMaterial;
-        Vector3 parentPos = transform.parent.transform.position;
-        transform.position = new Vector3(parentPos.x - 0.053f, parentPos.y, parentPos.z - 0.135f);
-        transform.Rotate(-75, 90, 0);
-        transform.localScale = new Vector3(0.85f, 0.85f, 0.85f);
-        alive = false;
-        lifetime = 0.0f;
+        base.SetPosition(0);
+        toggleAnimationLength = GetComponent<Animator>().runtimeAnimatorController.animationClips[2].length;
     }
 
     private void Start() {
         ghostBand.SetActive(false);
-        mode = Mode.View;
+        toggleState = ToggleState.View;
     }
 
-    private IEnumerator CheckIfStillAlive() {
-        if (Time.time - lifetime > animation.length) {
-            animator.SetBool("Hovering", false);
-            alive = false;
-            yield return null;
-        } else {
-            yield return new WaitForSeconds(animation.length * (1 / animator.speed));
-            yield return CheckIfStillAlive();
-        }
-    }
-
-    public override void GiveLife() {
-        if (!alive) {
-            lifetime = Time.time;
-            alive = true;
-            animator.SetBool("Hovering", true);
-            StartCoroutine(CheckIfStillAlive());
-        }
-    }
-
-    public override void IncreaseLifetime() {
-        lifetime = Time.time;
-    }
-
-    public override void Toggle() {
-        if (mode == Mode.View) {
+    public override IEnumerator Toggle() {
+        if (toggleState == ToggleState.View) {
+            base.TriggerToggled();
+            yield return new WaitForSeconds(toggleAnimationLength / 2);
             meshRenderer.material = editMaterial;
             playBand.SetActive(false);
             ghostBand.SetActive(true);
-            mode = Mode.Edit;
+            yield return new WaitForSeconds(toggleAnimationLength / 2);
+            toggleState = ToggleState.Edit;
+            yield return null;
         } else {
+            base.TriggerToggled();
+            yield return new WaitForSeconds(toggleAnimationLength / 2);
             meshRenderer.material = viewMaterial;
             ghostBand.SetActive(false);
             playBand.SetActive(true);
-            mode = Mode.View;
+            yield return new WaitForSeconds(toggleAnimationLength / 2);
+            toggleState = ToggleState.View;
+            yield return null;
         }
     }
+
+    
+
 
 }

@@ -4,62 +4,42 @@ using UnityEngine;
 
 public class GhostBandScript : BandScript {
 
-    private Animator animator;
-    private new AnimationClip animation;
+    private enum ToggleState { Off, On };
+    private ToggleState toggleState;
     private Renderer meshRenderer;
-    private bool alive;
-    private float lifetime;
-    private bool toggle;
+    private float toggleAnimationLength;
 
     public Material offMaterial;
     public Material onMaterial;
 
 
     private void Awake() {
-        animator = GetComponent<Animator>();
-        animation = animator.runtimeAnimatorController.animationClips[1];
+        base.InitializeBand();
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();
         meshRenderer.material = offMaterial;
-        Vector3 parentPos = transform.parent.transform.position;
-        transform.position = new Vector3(parentPos.x - 0.053f, parentPos.y, parentPos.z - 0.17f);
-        transform.Rotate(-75, 90, 0);
-        transform.localScale = new Vector3(0.85f, 0.85f, 0.85f);
-        alive = false;
-        lifetime = 0.0f;
-        toggle = false;
+        base.SetPosition(1);
+        toggleAnimationLength = GetComponent<Animator>().runtimeAnimatorController.animationClips[2].length;
     }
 
-    private IEnumerator CheckIfStillAlive() {
-        if (Time.time - lifetime > animation.length) {
-            animator.SetBool("Hovering", false);
-            alive = false;
+    private void Start() {
+        toggleState = ToggleState.Off;
+    }
+
+    public override IEnumerator Toggle() {
+        if (toggleState == ToggleState.Off) {
+            base.TriggerToggled();
+            yield return new WaitForSeconds(toggleAnimationLength / 2);
+            meshRenderer.material = onMaterial;
+            yield return new WaitForSeconds(toggleAnimationLength / 2);
+            toggleState = ToggleState.On;
             yield return null;
         } else {
-            yield return new WaitForSeconds(animation.length * (1 / animator.speed));
-            yield return CheckIfStillAlive();
-        }
-    }
-
-    public override void GiveLife() {
-        if (!alive) {
-            lifetime = Time.time;
-            alive = true;
-            animator.SetBool("Hovering", true);
-            StartCoroutine(CheckIfStillAlive());
-        }
-    }
-
-    public override void IncreaseLifetime() {
-        lifetime = Time.time;
-    }
-    
-    public override void Toggle() {
-        if (toggle) {
+            base.TriggerToggled();
+            yield return new WaitForSeconds(toggleAnimationLength / 2);
             meshRenderer.material = offMaterial;
-            toggle = false;
-        } else {
-            meshRenderer.material = onMaterial;
-            toggle = true;
+            yield return new WaitForSeconds(toggleAnimationLength / 2);
+            toggleState = ToggleState.Off;
+            yield return null;
         }
     }
 

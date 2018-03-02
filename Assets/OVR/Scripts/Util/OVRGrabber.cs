@@ -19,7 +19,6 @@ limitations under the License.
 
 ************************************************************************************/
 
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -31,9 +30,6 @@ public class OVRGrabber : MonoBehaviour {
     // Grip trigger thresholds for picking up objects, with some hysteresis.
     public float grabBegin = 0.55f;
     public float grabEnd = 0.35f;
-
-    public GameObject bandTrigger;
-    public GameObject dummy;
 
     // Demonstrates parenting the held object to the hand's transform when grabbed.
     // When false, the grabbed object is moved every FixedUpdate using MovePosition. 
@@ -190,9 +186,6 @@ public class OVRGrabber : MonoBehaviour {
     }
 
     protected virtual void GrabBegin() {
-        if (bandTrigger)     // Notify bandTrigger that it should toggle the band it's currently hovering over
-            bandTrigger.GetComponent<BandTriggerScript>().BandGrabbed();
-
         float closestMagSq = float.MaxValue;
         OVRGrabbable closestGrabbable = null;
         Collider closestGrabbableCollider = null;
@@ -284,8 +277,6 @@ public class OVRGrabber : MonoBehaviour {
 
     protected void GrabEnd() {
         if (m_grabbedObj != null) {
-            if (dummy)
-                dummy.GetComponent<DummyScript>().GrabEnd();  // Notify dummy script that dummy has been released
             OVRPose localPose = new OVRPose { position = OVRInput.GetLocalControllerPosition(m_controller), orientation = OVRInput.GetLocalControllerRotation(m_controller) };
             OVRPose offsetPose = new OVRPose { position = m_anchorOffsetPosition, orientation = m_anchorOffsetRotation };
             localPose = localPose * offsetPose;
