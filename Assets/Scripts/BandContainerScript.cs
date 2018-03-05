@@ -6,47 +6,51 @@ using UnityEngine;
 public class BandContainerScript : MonoBehaviour {
 
     private GameObject closestBand;
-    private bool bufferTimeFinished;
+    private bool bufferFinished;
 
-    public float bufferTime;
+    public float bufferLength;
 
     private void Awake() {
         closestBand = null;
-        bufferTimeFinished = true;
+        bufferFinished = true;
     }
 
     private void OnTriggerEnter(Collider otherCollider) {
         if (otherCollider.tag == "BandTrigger") {
             closestBand = GetClosestBand(otherCollider.transform.position);
             closestBand.GetComponent<BandScript>().Hovering();
+            bufferFinished = false;
+            StartCoroutine(Wait());
         }
     }
 
     private void OnTriggerStay(Collider otherCollider) {
-        if (otherCollider.tag == "BandTrigger") {
+        if (otherCollider.tag == "BandTrigger" && bufferFinished) {
             GameObject newClosestBand = GetClosestBand(otherCollider.transform.position);
-            if(newClosestBand.name == closestBand.name) {
-                if (Mathf.Abs(Vector3.Distance(closestBand.transform.position, otherCollider.transform.position)) < 0.025f && bufferTimeFinished) {
-                    bufferTimeFinished = false;
-                    StartCoroutine(closestBand.GetComponent<BandScript>().Toggle());
-                    StartCoroutine(WaitBufferTime());
-                }
-            } else {
+            if(newClosestBand.name != closestBand.name) {
                 closestBand.GetComponent<BandScript>().Unhovering();
                 closestBand = newClosestBand;
                 closestBand.GetComponent<BandScript>().Hovering();
+                bufferFinished = false;
+                StartCoroutine(Wait());
+            } else if (Mathf.Abs(Vector3.Distance(closestBand.transform.position, otherCollider.transform.position)) < 0.025f) {
+                StartCoroutine(closestBand.GetComponent<BandScript>().Toggle());
+                bufferFinished = false;
+                StartCoroutine(Wait());
             }
         }
     }
 
     private void OnTriggerExit(Collider otherCollider) {
-        if (otherCollider.tag == "BandTrigger")
+        if (otherCollider.tag == "BandTrigger") {
             closestBand.GetComponent<BandScript>().Unhovering();
+            bufferFinished = true;
+        }
     }
 
-    private IEnumerator WaitBufferTime() {
-        yield return new WaitForSeconds(bufferTime);
-        bufferTimeFinished = true;
+    private IEnumerator Wait() {
+        yield return new WaitForSeconds(bufferLength);
+        bufferFinished = true;
         yield return null;
     }
 

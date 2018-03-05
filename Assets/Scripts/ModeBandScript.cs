@@ -11,8 +11,11 @@ public class ModeBandScript : BandScript {
 
     public Material viewMaterial;
     public Material editMaterial;
+    public GameObject endBand;
     public GameObject playBand;
+    public GameObject startBand;
     public GameObject ghostBand;
+    public GameObject undoBand;
 
 
     private void Awake() {
@@ -25,6 +28,7 @@ public class ModeBandScript : BandScript {
 
     private void Start() {
         ghostBand.SetActive(false);
+        undoBand.SetActive(false);
         toggleState = ToggleState.View;
     }
 
@@ -32,19 +36,31 @@ public class ModeBandScript : BandScript {
         if (toggleState == ToggleState.View) {
             base.TriggerToggled();
             yield return new WaitForSeconds(toggleAnimationLength / 2);
+
             meshRenderer.material = editMaterial;
+            endBand.SetActive(false);
             playBand.SetActive(false);
+            startBand.SetActive(false);
             ghostBand.SetActive(true);
+            undoBand.SetActive(true);
+
             yield return new WaitForSeconds(toggleAnimationLength / 2);
+
             toggleState = ToggleState.Edit;
             yield return null;
         } else {
             base.TriggerToggled();
             yield return new WaitForSeconds(toggleAnimationLength / 2);
+
             meshRenderer.material = viewMaterial;
             ghostBand.SetActive(false);
+            undoBand.SetActive(false);
+            endBand.SetActive(true);
             playBand.SetActive(true);
+            startBand.SetActive(true);
+
             yield return new WaitForSeconds(toggleAnimationLength / 2);
+
             toggleState = ToggleState.View;
             yield return null;
         }
