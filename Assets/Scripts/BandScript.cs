@@ -13,8 +13,7 @@ public abstract class BandScript : MonoBehaviour {
 
     protected void SetPosition(int bandPosition) {
         float bandOffset = bandPosition * 0.035f + 0.135f;
-        Vector3 parentPos = transform.parent.transform.position;
-        transform.position = new Vector3(parentPos.x - 0.053f, parentPos.y, parentPos.z - bandOffset);
+        transform.localPosition = new Vector3(-0.073f, 0f, -bandOffset);
         transform.Rotate(-75, 90, 0);
         transform.localScale = new Vector3(0.85f, 0.85f, 0.85f);
     }

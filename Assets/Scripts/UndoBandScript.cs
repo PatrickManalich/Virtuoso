@@ -14,7 +14,7 @@ public class UndoBandScript : BandScript {
         base.InitializeBand();
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();
         meshRenderer.material = undoMaterial;
-        base.SetPosition(2);
+        base.SetPosition(4);
         toggleAnimationLength = GetComponent<Animator>().runtimeAnimatorController.animationClips[2].length;
     }
 

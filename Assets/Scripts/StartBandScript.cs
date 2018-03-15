@@ -14,7 +14,7 @@ public class StartBandScript : BandScript {
         base.InitializeBand();
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();
         meshRenderer.material = startMaterial;
-        base.SetPosition(3);
+        base.SetPosition(1);
         toggleAnimationLength = GetComponent<Animator>().runtimeAnimatorController.animationClips[2].length;
     }
 

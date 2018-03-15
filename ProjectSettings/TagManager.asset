@@ -5,7 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Sample
-  - BandTrigger
+  - FingerTrigger
+  - Band
   layers:
   - Default
   - TransparentFX

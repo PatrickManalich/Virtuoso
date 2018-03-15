@@ -5,18 +5,23 @@ using UnityEngine;
 
 public class BandContainerScript : MonoBehaviour {
 
+    private Transform compoundColliderTransform;
     private GameObject closestBand;
     private bool bufferFinished;
 
     public float bufferLength;
 
     private void Awake() {
+        compoundColliderTransform = transform.GetChild(0);
+        compoundColliderTransform.localPosition = new Vector3(-0.08f, 0.005f, -0.205f);
+        compoundColliderTransform.Rotate(0f, 0f, -13.6f);
+        compoundColliderTransform.localScale = new Vector3(0.09f, 0.07f, 0.18f);
         closestBand = null;
         bufferFinished = true;
     }
 
     private void OnTriggerEnter(Collider otherCollider) {
-        if (otherCollider.tag == "BandTrigger") {
+        if (otherCollider.tag == "FingerTrigger") {
             closestBand = GetClosestBand(otherCollider.transform.position);
             closestBand.GetComponent<BandScript>().Hovering();
             bufferFinished = false;
@@ -25,7 +30,7 @@ public class BandContainerScript : MonoBehaviour {
     }
 
     private void OnTriggerStay(Collider otherCollider) {
-        if (otherCollider.tag == "BandTrigger" && bufferFinished) {
+        if (otherCollider.tag == "FingerTrigger" && bufferFinished) {
             GameObject newClosestBand = GetClosestBand(otherCollider.transform.position);
             if(newClosestBand.name != closestBand.name) {
                 closestBand.GetComponent<BandScript>().Unhovering();
@@ -42,7 +47,7 @@ public class BandContainerScript : MonoBehaviour {
     }
 
     private void OnTriggerExit(Collider otherCollider) {
-        if (otherCollider.tag == "BandTrigger") {
+        if (otherCollider.tag == "FingerTrigger") {
             closestBand.GetComponent<BandScript>().Unhovering();
             bufferFinished = true;
         }
@@ -54,19 +59,19 @@ public class BandContainerScript : MonoBehaviour {
         yield return null;
     }
 
-    private GameObject GetClosestBand(Vector3 bandTriggerPosition) {
+    private GameObject GetClosestBand(Vector3 fingerTriggerPosition) {
         GameObject closestBand = null;
         float minDistance = 0f;
         bool firstBand = true;
-        foreach (Transform band in transform) {
-            if (band.gameObject.activeSelf) {
-                float testDistance = Vector3.Distance(band.transform.position, bandTriggerPosition);
+        foreach (Transform child in transform) {
+            if (child.gameObject.activeSelf && child.tag == "Band") {
+                float testDistance = Vector3.Distance(child.transform.position, fingerTriggerPosition);
                 if (firstBand) {
-                    closestBand = band.gameObject;
+                    closestBand = child.gameObject;
                     minDistance = testDistance;
                     firstBand = false;
                 } else if ( testDistance < minDistance) {
-                    closestBand = band.gameObject;
+                    closestBand = child.gameObject;
                     minDistance = testDistance; 
                 }
             }
