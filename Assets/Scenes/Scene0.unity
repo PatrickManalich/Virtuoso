@@ -641,8 +641,7 @@ MonoBehaviour:
   sliderIdleMaterial: {fileID: 2100000, guid: 68db7396ac96ab24886be12159434a79, type: 2}
   sliderHoveringMaterial: {fileID: 2100000, guid: 58a4d9d9e7c345845855bbbdd0607e50,
     type: 2}
-  sliderSlidingMaterial: {fileID: 2100000, guid: 765745645a8728f4db25fbcc63acdc35,
-    type: 2}
+  slideDistance: 0.025
 --- !u!54 &519325334
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -695,11 +694,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 0ee5b485ac8e467418533a99ad46232e, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 0ee5b485ac8e467418533a99ad46232e, type: 3}
       propertyPath: m_Name
-      value: SliderStart
+      value: StartSlider
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 0ee5b485ac8e467418533a99ad46232e, type: 3}
+      propertyPath: m_TagString
+      value: Slider
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 0ee5b485ac8e467418533a99ad46232e, type: 3}
@@ -1159,11 +1162,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: fd936db7522c42543a727562f8a0efca, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: fd936db7522c42543a727562f8a0efca, type: 3}
       propertyPath: m_Name
-      value: SliderCurrent
+      value: CurrentSlider
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: fd936db7522c42543a727562f8a0efca, type: 3}
+      propertyPath: m_TagString
+      value: Slider
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: fd936db7522c42543a727562f8a0efca, type: 3}
@@ -1261,6 +1268,10 @@ Prefab:
       propertyPath: m_Name
       value: SpeedBand
       objectReference: {fileID: 0}
+    - target: {fileID: 1838348582226470, guid: c671b1eef3743e94b9537c44cb351c8c, type: 2}
+      propertyPath: m_TagString
+      value: Band
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c671b1eef3743e94b9537c44cb351c8c, type: 2}
   m_IsPrefabParent: 0
@@ -1301,6 +1312,10 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4571558539872238, guid: 997297401ae74a44298be12a081fc54a, type: 2}
       propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1756667591513060, guid: 997297401ae74a44298be12a081fc54a, type: 2}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -1973,6 +1988,10 @@ Prefab:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1756667591513060, guid: 997297401ae74a44298be12a081fc54a, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 997297401ae74a44298be12a081fc54a, type: 2}
   m_IsPrefabParent: 0
@@ -2371,11 +2390,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 4f9bdafbd5ee0a042818fde5d1a9ece8, type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 4f9bdafbd5ee0a042818fde5d1a9ece8, type: 3}
       propertyPath: m_Name
-      value: SliderEnd
+      value: EndSlider
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 4f9bdafbd5ee0a042818fde5d1a9ece8, type: 3}
+      propertyPath: m_TagString
+      value: Slider
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 4f9bdafbd5ee0a042818fde5d1a9ece8, type: 3}
@@ -2427,7 +2450,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d9e6985bb4a8e540b13c05d13c9d0f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bufferLength: 1
+  bufferSeconds: 1
+  toggleDistance: 0.025
 --- !u!54 &2131811916
 Rigidbody:
   m_ObjectHideFlags: 0

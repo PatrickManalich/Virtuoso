@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class FingerTriggerScript : MonoBehaviour {
 
-    private OvrAvatar ovrAvatarScript;
+    private OvrAvatar ovrAvatarScript;  // The OVRAvatarScript component of LocalAvatar
 
     private void Awake() {
         ovrAvatarScript = transform.parent.parent.GetComponent<OvrAvatar>();
     }
 
     private void Update() {
-        Transform jointTipTransform = ovrAvatarScript.GetHandTransform(OvrAvatar.HandType.Right, OvrAvatar.HandJoint.IndexTip);
-        if (jointTipTransform)
-            transform.position = jointTipTransform.position;
+            // Update the position of the finger trigger based on the position of the index tip of its parent's hand
+        Transform indexTipTransform = ovrAvatarScript.GetHandTransform(OvrAvatar.HandType.Right, OvrAvatar.HandJoint.IndexTip);
+        if (indexTipTransform)
+            transform.position = indexTipTransform.position;
     }
 }

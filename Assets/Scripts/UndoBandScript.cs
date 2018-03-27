@@ -4,13 +4,14 @@ using UnityEngine;
 
 public class UndoBandScript : BandScript {
     
-    private Renderer meshRenderer;
-    private float toggleAnimationLength;
+    private Renderer meshRenderer;          // The mesh renderer of the band
+    private float toggleAnimationLength;    // The number of seconds the toggle animation lasts
 
-    public Material undoMaterial;
+    public Material undoMaterial;           // The start material of the band
 
 
     private void Awake() {
+            // Initialized private variables and set it to the fourth position on the wrist
         base.InitializeBand();
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();
         meshRenderer.material = undoMaterial;
