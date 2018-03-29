@@ -7,8 +7,8 @@ public class BandContainerScript : MonoBehaviour {
 
     private Transform compoundColliderTransform;    // The transform of compound collider, used for extra collider control
     private GameObject closestBand;                 // The band closest to the finger trigger when within the compound collider
-    private bool bufferFinished;                    /* This returns true if buffer has finished. Buffer is used for both waiting on
-                                                     * band animations to finish and to prevent multiple band toggles */
+    private bool bufferFinished;                    // This returns true if buffer has finished. Buffer is used for both waiting on
+                                                    // band animations to finish and to prevent multiple band toggles
 
     public float bufferSeconds;                     // The number of seconds the buffer lasts
     public float toggleDistance;                    // The minimum distance from finger toggle to band that is required to toggle it
@@ -18,10 +18,7 @@ public class BandContainerScript : MonoBehaviour {
         compoundColliderTransform = transform.GetChild(0);
         compoundColliderTransform.localPosition = new Vector3(-0.08f, 0.005f, -0.205f);
         compoundColliderTransform.Rotate(0f, 0f, -13.6f);
-        compoundColliderTransform.localScale = new Vector3(0.09f, 0.07f, 0.18f);            
-    }
-
-    private void Start() {
+        compoundColliderTransform.localScale = new Vector3(0.09f, 0.07f, 0.18f);
             // Initialize closestBand and bufferFinished
         closestBand = null;
         bufferFinished = true;
@@ -65,14 +62,14 @@ public class BandContainerScript : MonoBehaviour {
         }
     }
 
-    // Waits for buffer seconds, then sets bufferFinished to true, allowing further action to take place
+    /* A coroutine that waits for buffer seconds, then sets bufferFinished to true, allowing further action to take place. */
     private IEnumerator Wait() {
         yield return new WaitForSeconds(bufferSeconds);
         bufferFinished = true;
         yield return null;
     }
 
-    // Takes in the finger trigger position and returns the closest band to it
+    /* Takes in the finger trigger position and returns the closest band to it. */
     private GameObject GetClosestBand(Vector3 fingerTriggerPosition) {
         GameObject closestBand = null;
         float minDistance = 0f;

@@ -255,6 +255,8 @@ public class OVRGrabber : MonoBehaviour {
             if (m_parentHeldObject) {
                 m_grabbedObj.transform.parent = transform;
             }
+            if (m_grabbedObj.gameObject.tag == "Dummy")
+                m_grabbedObj.gameObject.GetComponent<DummyScript>().GrabBegin();
         }
     }
 
@@ -277,6 +279,8 @@ public class OVRGrabber : MonoBehaviour {
 
     protected void GrabEnd() {
         if (m_grabbedObj != null) {
+            if (m_grabbedObj.gameObject.tag == "Dummy")
+                m_grabbedObj.gameObject.GetComponent<DummyScript>().GrabEnd();
             OVRPose localPose = new OVRPose { position = OVRInput.GetLocalControllerPosition(m_controller), orientation = OVRInput.GetLocalControllerRotation(m_controller) };
             OVRPose offsetPose = new OVRPose { position = m_anchorOffsetPosition, orientation = m_anchorOffsetRotation };
             localPose = localPose * offsetPose;

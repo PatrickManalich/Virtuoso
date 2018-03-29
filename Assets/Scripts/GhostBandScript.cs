@@ -20,12 +20,10 @@ public class GhostBandScript : BandScript {
         meshRenderer.material = offMaterial;
         base.SetPosition(3);
         toggleAnimationLength = GetComponent<Animator>().runtimeAnimatorController.animationClips[2].length;
-    }
-
-    private void Start() {
         toggleState = ToggleState.Off;
     }
 
+    /* Changes the material of the toggle. */
     public override IEnumerator Toggle() {
         if (toggleState == ToggleState.Off) {
             base.TriggerToggled();

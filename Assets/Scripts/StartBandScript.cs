@@ -5,7 +5,6 @@ using UnityEngine;
 public class StartBandScript : BandScript {
 
     private Renderer meshRenderer;          // The mesh renderer of the band
-    private float toggleAnimationLength;    // The number of seconds the toggle animation lasts
 
     public Material startMaterial;          // The start material of the band
 
@@ -16,10 +15,9 @@ public class StartBandScript : BandScript {
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();
         meshRenderer.material = startMaterial;
         base.SetPosition(1);
-        toggleAnimationLength = GetComponent<Animator>().runtimeAnimatorController.animationClips[2].length;
     }
 
-
+    /**/
     public override IEnumerator Toggle() {
         base.TriggerToggled();
         yield return null;

@@ -9,6 +9,7 @@ public class SpeedBandScript : BandScript {
     private Renderer meshRenderer;                      // The mesh renderer of the band
     private float toggleAnimationLength;                // The number of seconds the toggle animation lasts
 
+    public float sampleRate;                            // The sample rate of the animation
     public Material realTimeMaterial;                   // The realtime material of the band
     public Material fastMaterial;                       // The fast material of the band
     public Material slowMaterial;                       // The slow material of the band
@@ -20,12 +21,10 @@ public class SpeedBandScript : BandScript {
         meshRenderer.material = realTimeMaterial;
         base.SetPosition(0);
         toggleAnimationLength = GetComponent<Animator>().runtimeAnimatorController.animationClips[2].length;
-    }
-
-    private void Start() {
         toggleState = ToggleState.RealTime;
     }
 
+    /* Changes the material of the toggle and the toggle state. */
     public override IEnumerator Toggle() {
         if (toggleState == ToggleState.RealTime) {
             base.TriggerToggled();
@@ -49,5 +48,15 @@ public class SpeedBandScript : BandScript {
             toggleState = ToggleState.RealTime;
             yield return null;
         }
+    }
+
+    /* Returns the sample rate based on the toggle state */
+    public float GetSampleRate() {
+        if (toggleState == ToggleState.RealTime)
+            return sampleRate;
+        else if (toggleState == ToggleState.Fast)
+            return sampleRate * 0.5f;
+        else
+            return sampleRate * 2.0f;
     }
 }

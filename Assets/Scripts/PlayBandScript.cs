@@ -19,12 +19,10 @@ public class PlayBandScript : BandScript {
         meshRenderer.material = pauseMaterial;
         base.SetPosition(2);
         toggleAnimationLength = GetComponent<Animator>().runtimeAnimatorController.animationClips[2].length;
-    }
-
-    private void Start() {
         toggleState = ToggleState.Pause;
     }
 
+    /* Changes the material of the toggle. */
     public override IEnumerator Toggle() {
         if (toggleState == ToggleState.Pause) {
             base.TriggerToggled();

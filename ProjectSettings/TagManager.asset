@@ -8,6 +8,7 @@ TagManager:
   - FingerTrigger
   - Band
   - Slider
+  - Dummy
   layers:
   - Default
   - TransparentFX

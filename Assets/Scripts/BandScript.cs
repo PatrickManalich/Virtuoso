@@ -5,8 +5,9 @@ using UnityEngine;
 
 public abstract class BandScript : MonoBehaviour {
 
-    private Animator animator;  // The animator that every band have
+    private Animator animator;  // The animator that every band must have
 
+    /* Sets up components that every band must have. */
     protected void InitializeBand() {
         animator = GetComponent<Animator>();
     }
@@ -21,21 +22,21 @@ public abstract class BandScript : MonoBehaviour {
         transform.localScale = new Vector3(0.85f, 0.85f, 0.85f);
     }
 
-    // Triggers the toggled trigger in the animator
+    /* Triggers the toggled trigger in the animator. */
     protected void TriggerToggled() {
         animator.SetTrigger("Toggled");
     }
 
-    // Sets the hovering bool in the animator to true
+    /* Sets the hovering bool in the animator to true. */
     public void Hovering() {
         animator.SetBool("Hovering", true);
     }
 
-    // Sets the hovering bool in the animator to false
+    /* Sets the hovering bool in the animator to false. */
     public void Unhovering() {
         animator.SetBool("Hovering", false);
     }
 
-    // All bands are required to implement a function that handles what happens when they are toggled
+    /* All bands are required to implement a function that handles what happens when they are toggled. */
     public abstract IEnumerator Toggle();
 }
