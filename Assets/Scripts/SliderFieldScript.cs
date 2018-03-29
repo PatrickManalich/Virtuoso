@@ -26,7 +26,6 @@ public class SliderFieldScript : MonoBehaviour {
 
     private void Awake() {
         dummyScript = dummy.GetComponent<DummyScript>();
-        dummySampleCount = dummyScript.GetSampleCount();
             // Initialize the local position, rotation, and scale of the slider field
         transform.localPosition = new Vector3(-0.086f, -0.055f, -0.2047f);
         transform.Rotate(-75, 90, 0);
@@ -57,6 +56,8 @@ public class SliderFieldScript : MonoBehaviour {
 
         closestSlider = null;
     }
+    
+    private void Start() { dummySampleCount = dummyScript.GetSampleCount(); }
 
     private void OnTriggerEnter(Collider otherCollider) {
         if (otherCollider.tag == "FingerTrigger") {

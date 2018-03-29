@@ -93,7 +93,7 @@ public class DummyScript : MonoBehaviour {
         Debug.Log("grab begin");
     }    
 
-    /* *.
+    /* */
     public void GrabEnd() {
         Debug.Log("grab end");
     }
