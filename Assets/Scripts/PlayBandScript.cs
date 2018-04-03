@@ -7,13 +7,16 @@ public class PlayBandScript : BandScript {
     private enum ToggleState { Pause, Play };   // The two state options are either pause or play
     private ToggleState toggleState;            // The current state of the band
     private Renderer meshRenderer;              // The mesh renderer of the band
+    private DummyScript dummyScript;            // The dummy script of the dummy Game Object
     private float toggleAnimationLength;        // The number of seconds the toggle animation lasts
 
     public Material pauseMaterial;              // The pause material of the band
     public Material playMaterial;               // The play material of the band
+    public GameObject dummy;                    // The dummy Game Object
 
     private void Awake() {
-            // Initialized private variables and set it to the third position on the wrist
+        // Initialized private variables and set it to the third position on the wrist
+        dummyScript = dummy.GetComponent<DummyScript>();
         base.InitializeBand();
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();
         meshRenderer.material = pauseMaterial;
@@ -22,12 +25,13 @@ public class PlayBandScript : BandScript {
         toggleState = ToggleState.Pause;
     }
 
-    /* Changes the material of the toggle. */
+    /* Changes the material of the toggle and either plays or pauses the dummy. */
     public override IEnumerator Toggle() {
         if (toggleState == ToggleState.Pause) {
             base.TriggerToggled();
             yield return new WaitForSeconds(toggleAnimationLength / 2);
             meshRenderer.material = playMaterial; // Changes material halfway through animation
+            dummyScript.StartPlaying();
             yield return new WaitForSeconds(toggleAnimationLength / 2);
             toggleState = ToggleState.Play;
             yield return null;
@@ -35,10 +39,16 @@ public class PlayBandScript : BandScript {
             base.TriggerToggled();
             yield return new WaitForSeconds(toggleAnimationLength / 2);
             meshRenderer.material = pauseMaterial; // Changes material halfway through animation
+            dummyScript.StopPlaying();
             yield return new WaitForSeconds(toggleAnimationLength / 2);
             toggleState = ToggleState.Pause;
             yield return null;
         }
     }
 
+    /* Forces the play band to enter the pause toggle state. */
+    public void ForcePauseToggle() {
+        meshRenderer.material = pauseMaterial;
+        toggleState = ToggleState.Pause;
+    }
 }
