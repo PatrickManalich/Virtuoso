@@ -14,13 +14,15 @@ public class GhostScript : MonoBehaviour {
 
     private void Awake() {
         gameObject.SetActive(false);
+        transform.localScale = dummy.transform.localScale;
         dummyScript = dummy.GetComponent<DummyScript>();
         speedBandScript = speedBand.GetComponent<SpeedBandScript>();
         sliderFieldScript = sliderField.GetComponent<SliderFieldScript>();
     }
-    
 
-    /* */
+
+    /* Coroutine that takes in a ghost sample index and begins moving to the next sample index by lerping over t. Will increment the ghost sample index and call itself
+     * once t is greater than 1. If the ghost sample index becomes greater than the end slider sample index, will start the ghost from the start slider sample index. */
     private IEnumerator MoveGhostToNextSample(int ghostSampleIndex) {
         if (ghostSampleIndex < sliderFieldScript.GetEndSliderSampleIndex()) {
             float t = 0f;
@@ -38,7 +40,7 @@ public class GhostScript : MonoBehaviour {
         }
     }
 
-    /* */
+    /* Sets itself active and starts the MoveGhostToNextSample() coroutine. */
     public void StartGhosting() {
         gameObject.SetActive(true);
         transform.position = dummyScript.GetSamplePosition(sliderFieldScript.GetStartSliderSampleIndex());
@@ -46,7 +48,7 @@ public class GhostScript : MonoBehaviour {
         StartCoroutine(MoveGhostToNextSample(sliderFieldScript.GetStartSliderSampleIndex()));
     }
 
-    /* */
+    /* Sets itself inactive and stops all coroutines. */
     public void StopGhosting() {
         gameObject.SetActive(false);
         StopAllCoroutines();

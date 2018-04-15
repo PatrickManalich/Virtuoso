@@ -50,6 +50,9 @@ public class SliderFieldScript : MonoBehaviour {
             // Initialize slider indicator
         sliderIndicator = transform.GetChild(4).gameObject;
         sliderIndicator.SetActive(false);
+            // Initialize slider aids
+        startAid.transform.localScale = dummy.transform.localScale;
+        endAid.transform.localScale = dummy.transform.localScale;
     }
 
     private void Start() {
@@ -170,11 +173,13 @@ public class SliderFieldScript : MonoBehaviour {
             } else if(closestSlider == currentSlider) {
                     // Find the floored sample index, find the t, adjust the current slider, then adjust slider indicator and dummy
                 int flooredSampleIndex = (int)Mathf.Floor(sliderPercent * (dummySampleCount - 1));
-                float flooredSamplePercent = (float)flooredSampleIndex / ((float)dummySampleCount - 1.0f);
-                float t = (sliderPercent - flooredSamplePercent) / (1.0f / ((float)dummySampleCount - 1.0f));
-                AdjustSlider("CurrentSlider", flooredSampleIndex, t);
-                sliderIndicator.transform.localPosition = V3E.SetZ(closestSlider.transform.localPosition, indicatorOffset);
-                dummyScript.Adjust(flooredSampleIndex, t);
+                if(flooredSampleIndex >= startSliderSampleIndex && flooredSampleIndex <= endSliderSampleIndex) {
+                    float flooredSamplePercent = (float)flooredSampleIndex / ((float)dummySampleCount - 1.0f);
+                    float t = (sliderPercent - flooredSamplePercent) / (1.0f / ((float)dummySampleCount - 1.0f));
+                    AdjustSlider("CurrentSlider", flooredSampleIndex, t);
+                    sliderIndicator.transform.localPosition = V3E.SetZ(closestSlider.transform.localPosition, indicatorOffset);
+                    dummyScript.Adjust(flooredSampleIndex, t);
+                }
             } else {    // end slider
                     // Find the ceiled sample index, set the end slider sample index to this, then find and set new x position,
                     // and adjust slider indicator and end aid

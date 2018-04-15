@@ -1,13 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class DummyScript : MonoBehaviour {
 
     private int sampleCount;                        // The number of samples in the animation
     private SpeedBandScript speedBandScript;        // The speed band script, used for caching
     private PlayBandScript playBandScript;          // The play band script, used for caching
+    private OVRGrabber leftOVRGrabberScript;        // The OVR grabber script of the left hand anchor
+    private OVRGrabber rightOVRGrabberScript;       // The OVR grabber script of the right hand anchor
     private SliderFieldScript sliderFieldScript;    // The slider field script, used for caching
+    private GloveScript leftGloveScript;            // The glove script of the left glove, used for caching
+    private RefineGuideScript refineGuideScript;    // The refine guide script, used for caching
     private Vector3[] samplePositions;              // An array of the sample positions
     private Quaternion[] sampleRotations;           // An array of the sample rotations
     private int lastSampleIndex;                    // The index of the last sample, used for playing animation
@@ -20,14 +25,23 @@ public class DummyScript : MonoBehaviour {
     public GameObject speedBand;                    // The speed band of the slider field
     public GameObject playBand;                     // The play band of the slider field
     public GameObject sliderField;                  // The slider field Game Object, used for adjusting current slider
+    public GameObject leftHandAnchor;               // The left hand anchor Game Object
+    public GameObject rightHandAnchor;              // The right hand anchor Game Object
+    public GameObject leftGlove;                    // The left glove Game Object (you only need one)
+    public GameObject refineGuide;                  // The refine guide Game Object
 
     private void Awake() {
-        transform.position = new Vector3(0f, -0.46f, 0.75f);
+        transform.position = new Vector3(-1f, -0.46f, 0.25f);
         transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
         speedBandScript = speedBand.GetComponent<SpeedBandScript>();
         playBandScript = playBand.GetComponent<PlayBandScript>();
         sliderFieldScript = sliderField.GetComponent<SliderFieldScript>();
-            // Initialize sample positions and sample rotations
+        leftOVRGrabberScript = leftHandAnchor.GetComponent<OVRGrabber>();
+        rightOVRGrabberScript = rightHandAnchor.GetComponent<OVRGrabber>();
+        leftGloveScript = leftGlove.GetComponent<GloveScript>();
+        refineGuideScript = refineGuide.GetComponent<RefineGuideScript>();
+
+        // Initialize sample positions and sample rotations
         sampleCount = (int) Mathf.Ceil(animationSeconds / speedBandScript.GetSampleRate()); // Ceil to make nice even number
         samplePositions = new Vector3[sampleCount];
         for(int i = 0; i < sampleCount; i++) { samplePositions[i] = transform.position; }
@@ -73,7 +87,8 @@ public class DummyScript : MonoBehaviour {
         }
     }
 
-    /* */
+    /* Coroutine that overwrites the samples every sample rate seconds. Will update and used last sample index to recursively call itself
+     * until it has reached the end slider sample index, in which case it will force release the left and right grabber. */
     private IEnumerator OverwriteNextSample() {
         if (lastSampleIndex <= sliderFieldScript.GetEndSliderSampleIndex()) {
             editedSamplePositions[lastSampleIndex] = transform.position;
@@ -82,8 +97,33 @@ public class DummyScript : MonoBehaviour {
             lastSampleIndex++;
             yield return new WaitForSeconds(speedBandScript.GetSampleRate());
             yield return StartCoroutine(OverwriteNextSample());
-        } else
+        } else {
+            leftOVRGrabberScript.ForceRelease(gameObject.GetComponent<OVRGrabbable>());
+            rightOVRGrabberScript.ForceRelease(gameObject.GetComponent<OVRGrabbable>());
             yield return null;
+        }
+    }
+
+    /* Refines each sample index in between the start slider sample index and the end slider sample index. Uses a Hermite curve to give
+     * ease-in ease-out functionality. Slices the work into two halves, one from the start slider sample index to the last sample index,
+     * and one from the last sample index to the end sample index. */
+    private void ApplyRefinement() {
+        float refineT;
+        float percent;
+        // From start slider sample index to last sample index, including last sample index
+        for(int i = sliderFieldScript.GetStartSliderSampleIndex(); i <= lastSampleIndex; i++) {
+            percent = i / (float)lastSampleIndex;
+            refineT = Mathfx.Hermite(0.0f, 1.0f, percent);
+            samplePositions[i] = Vector3.Lerp(samplePositions[i], transform.position, refineT);
+            sampleRotations[i] = Quaternion.Lerp(sampleRotations[i], transform.rotation, refineT);
+        }
+        // From last sample index to end slider sample index, not including last sample index
+        for (int i = lastSampleIndex + 1; i <= sliderFieldScript.GetEndSliderSampleIndex(); i++) {
+            percent = (i - lastSampleIndex - 1) / ((float)sliderFieldScript.GetEndSliderSampleIndex() - lastSampleIndex - 1);
+            refineT = Mathfx.Hermite(0.0f, 1.0f, percent);
+            samplePositions[i] = Vector3.Lerp(transform.position, samplePositions[i], refineT);
+            sampleRotations[i] = Quaternion.Lerp(transform.rotation, sampleRotations[i], refineT);
+        }
     }
 
     /* Returns the sample count. */
@@ -118,27 +158,40 @@ public class DummyScript : MonoBehaviour {
         sliderFieldScript.AdjustSlider("CurrentSlider", sliderFieldScript.GetStartSliderSampleIndex(), 0f);
     }
 
-    /* */
+    /* Called once when the dummy is first grabbed. Depending on the state of the left glove (overwite or refine), will call the appropriate
+     * functions. */
     public void GrabBegin() {
         if (!isPaused) {    // If it was playing when grabbed, stop playing and force the play band to pause
             StopPlaying();
             playBandScript.ForcePauseToggle();
         }
-        sliderFieldScript.AdjustSlider("StartSlider", lastSampleIndex, 0f);     // force the start slider to align
-        lastT = 0f;
-        StartCoroutine(OverwriteNextSample());
+
+        if (leftGloveScript.isInOverwriteState()) {
+            sliderFieldScript.AdjustSlider("StartSlider", lastSampleIndex, 0f);     // force the start slider to align
+            lastT = 0f;
+            StartCoroutine(OverwriteNextSample());
+        } else    // Refining
+            refineGuideScript.StartGuiding(transform.position);
     }
 
-    /* */
+    /* Called once the dummy is let go. Depending on the state of the left glove (overwite or refine), will either overwrite samples with
+     * edited samples or call ApplyRefinement(). */
     public void GrabEnd() {
-        StopAllCoroutines();
-        for (int i = sliderFieldScript.GetStartSliderSampleIndex(); i < sliderFieldScript.GetEndSliderSampleIndex(); i++) {
-            samplePositions[i] = editedSamplePositions[i];
-            sampleRotations[i] = editedSampleRotations[i];
+        if (leftGloveScript.isInOverwriteState()) {
+            StopAllCoroutines();
+            int newEndSliderSampleIndex = lastSampleIndex - 1;    // the minus one comes from lastSampleIndex incrementing an extra time on last sample 
+            for (int i = sliderFieldScript.GetStartSliderSampleIndex(); i <= newEndSliderSampleIndex; i++) {
+                samplePositions[i] = editedSamplePositions[i];
+                sampleRotations[i] = editedSampleRotations[i];
+            }
+            sliderFieldScript.AdjustSlider("EndSlider", newEndSliderSampleIndex, 0f);   // force the end slider to align 
+
+            GoToStart();
+        } else {    // Refining
+            refineGuideScript.StopGuiding();
+            ApplyRefinement();
         }
-        sliderFieldScript.AdjustSlider("EndSlider", lastSampleIndex - 1, 0f);   // force the end slider to align, the minus one comes from
-                                                                                // lastSampleIndex incrementing an extra time on last sample    
-        GoToStart();
+
     }
 
 }
