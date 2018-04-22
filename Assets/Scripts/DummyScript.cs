@@ -31,7 +31,7 @@ public class DummyScript : MonoBehaviour {
     public GameObject refineGuide;                  // The refine guide Game Object
 
     private void Awake() {
-        transform.position = new Vector3(-1f, -0.46f, 0.25f);
+        transform.position = new Vector3(-0.5f, -0.46f, 0.25f);
         transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
         speedBandScript = speedBand.GetComponent<SpeedBandScript>();
         playBandScript = playBand.GetComponent<PlayBandScript>();
@@ -110,16 +110,19 @@ public class DummyScript : MonoBehaviour {
     private void ApplyRefinement() {
         float refineT;
         float percent;
-        // From start slider sample index to last sample index, including last sample index
-        for(int i = sliderFieldScript.GetStartSliderSampleIndex(); i <= lastSampleIndex; i++) {
-            percent = i / (float)lastSampleIndex;
+        int startSliderSampleIndex = sliderFieldScript.GetStartSliderSampleIndex(); // For caching
+        int endSliderSampleIndex = sliderFieldScript.GetEndSliderSampleIndex();     // For caching
+
+        // From range [start slider sample index, last sample index]
+        for(int i = startSliderSampleIndex; i <= lastSampleIndex; i++) {
+            percent = (i - startSliderSampleIndex) / ((float)lastSampleIndex - startSliderSampleIndex);
             refineT = Mathfx.Hermite(0.0f, 1.0f, percent);
             samplePositions[i] = Vector3.Lerp(samplePositions[i], transform.position, refineT);
             sampleRotations[i] = Quaternion.Lerp(sampleRotations[i], transform.rotation, refineT);
         }
-        // From last sample index to end slider sample index, not including last sample index
-        for (int i = lastSampleIndex + 1; i <= sliderFieldScript.GetEndSliderSampleIndex(); i++) {
-            percent = (i - lastSampleIndex - 1) / ((float)sliderFieldScript.GetEndSliderSampleIndex() - lastSampleIndex - 1);
+        // From range (last sample index, end slider sample index]
+        for (int i = lastSampleIndex + 1; i <= endSliderSampleIndex; i++) {
+            percent = (i - lastSampleIndex - 1) / ((float)endSliderSampleIndex - lastSampleIndex - 1);
             refineT = Mathfx.Hermite(0.0f, 1.0f, percent);
             samplePositions[i] = Vector3.Lerp(transform.position, samplePositions[i], refineT);
             sampleRotations[i] = Quaternion.Lerp(transform.rotation, sampleRotations[i], refineT);
