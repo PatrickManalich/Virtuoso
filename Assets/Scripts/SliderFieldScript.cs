@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SliderFieldScript : MonoBehaviour {
 
-    private DummyScript dummyScript;                // The dummy script of the dummy Game Object
+    private DummyManagerScript DMS;
     private int dummySampleCount;                   // The sample count of the dummy, cached for efficiency
     private const float localHalfLength = 0.1f;         // Half the length of the slider field in local scale
     private const float worldHalfLength = 0.1f * 0.82f; // Half the length of the slider field in world scale
@@ -19,15 +19,13 @@ public class SliderFieldScript : MonoBehaviour {
     private GameObject sliderIndicator;             // The slider indicator, which should be a child of the slider field
     private GameObject closestSlider;               // The slider closest to the finger trigger when within the compound collider
 
-    public GameObject dummy;                        // The dummy Game Object used for getting its script
-    public GameObject startAid;                     // The start aid Game Object
-    public GameObject endAid;                       // The end aid Game Object
+    public GameObject dummyManager;
     public Material sliderIdleMaterial;             // The material for all sliders while idle
     public Material sliderSlidingMaterial;          // The material for all sliders while sliding
     public float slideDistance;                     // The minimum distance from finger toggle to slider that is required to slide it
 
     private void Awake() {
-        dummyScript = dummy.GetComponent<DummyScript>();
+        DMS = dummyManager.GetComponent<DummyManagerScript>();
             // Initialize the local position, rotation, and scale of the slider field
         transform.localPosition = new Vector3(-0.086f, -0.055f, -0.2047f);
         transform.Rotate(-75, 90, 0);
@@ -50,25 +48,31 @@ public class SliderFieldScript : MonoBehaviour {
             // Initialize slider indicator
         sliderIndicator = transform.GetChild(4).gameObject;
         sliderIndicator.SetActive(false);
-            // Initialize slider aids
-        startAid.transform.localScale = dummy.transform.localScale;
-        endAid.transform.localScale = dummy.transform.localScale;
+        sliderIndicator.transform.parent = currentSlider.transform;
+        sliderIndicator.transform.localPosition = new Vector3(0.0f, 0.0f, indicatorOffset);
+        // Initialize slider aids
+        DMS.GetStartAid().transform.position = DMS.GetDummy().transform.position;
+        DMS.GetStartAid().transform.localScale = DMS.GetDummy().transform.localScale * 0.999f; // Prevents mesh clashing when overlaid
+        DMS.GetEndAid().transform.position = DMS.GetDummy().transform.position;
+        DMS.GetEndAid().transform.localScale = DMS.GetDummy().transform.localScale * 0.999f;   // Prevents mesh clashing when overlaid
+
+        dummySampleCount = DMS.GetSampleCount();
     }
 
     private void Start() {
-        dummySampleCount = dummyScript.GetSampleCount();
-        // Initialize aids
-        startAid.transform.position = dummy.transform.position;
-        startAid.transform.localScale = dummy.transform.localScale * 0.99f; // Prevents mesh clashing when overlaid
-        endAid.transform.position = dummy.transform.position;
-        endAid.transform.localScale = dummy.transform.localScale * 0.99f;   // Prevents mesh clashing when overlaid
+        int halfwayIndex = (DMS.GetSampleCount() / 2) - 1;
+        DMS.SFS_AdjustSlider("StartSlider", 0, 0f);
+        DMS.SFS_AdjustSlider("CurrentSlider", halfwayIndex, 0f);
+        DMS.SFS_AdjustSlider("EndSlider", DMS.GetSampleCount() - 1, 0f);
     }
+
 
     private void OnTriggerEnter(Collider otherCollider) {
         if (otherCollider.tag == "FingerTrigger") {
             closestSlider = GetClosestSlider(otherCollider.transform.position);
             sliderIndicator.SetActive(true);
-            sliderIndicator.transform.localPosition = V3E.SetZ(closestSlider.transform.localPosition, indicatorOffset);
+            sliderIndicator.transform.parent = closestSlider.transform;
+            sliderIndicator.transform.localPosition = new Vector3(0.0f, 0.0f, indicatorOffset);
         }
     }
 
@@ -81,7 +85,8 @@ public class SliderFieldScript : MonoBehaviour {
                     closestSlider.GetComponent<MeshRenderer>().material = sliderIdleMaterial;
 
                 closestSlider = newClosestSlider;
-                sliderIndicator.transform.localPosition = V3E.SetZ(closestSlider.transform.localPosition, indicatorOffset);
+                sliderIndicator.transform.parent = closestSlider.transform;
+                sliderIndicator.transform.localPosition = new Vector3(0.0f, 0.0f, indicatorOffset);
             } else if (Mathf.Abs(Vector3.Distance(closestSlider.transform.position, otherCollider.transform.position)) < slideDistance) {
                     // If closest slider is within slide distance, change material and slide the closest slider
                 if (closestSlider.GetComponent<MeshRenderer>().sharedMaterial.Equals(sliderIdleMaterial))
@@ -160,16 +165,9 @@ public class SliderFieldScript : MonoBehaviour {
             float sliderPercent = (testDistance - worldHalfLength) / (worldHalfLength * -2);
 
             if (closestSlider == startSlider) {
-                    // Find the floored sample index, set the start slider sample index to this, then find and set new x position,
-                    // and adjust slider indicator and start aid
+                    // Find the floored sample index and adjust the start slider
                 int flooredSampleIndex = (int)Mathf.Floor(sliderPercent * (dummySampleCount - 1));
-                startSliderSampleIndex = flooredSampleIndex;
-                float flooredSamplePercent = (float)startSliderSampleIndex / ((float)dummyScript.GetSampleCount() - 1.0f);
-                float newX = (flooredSamplePercent * localHalfLength * -2) + localHalfLength;
-                startSlider.transform.localPosition = V3E.SetX(localCenter, newX);
-                sliderIndicator.transform.localPosition = V3E.SetZ(closestSlider.transform.localPosition, indicatorOffset);
-                startAid.transform.position = dummyScript.GetSamplePosition(startSliderSampleIndex);
-                startAid.transform.rotation = dummyScript.GetSampleRotation(startSliderSampleIndex);
+                AdjustSlider("StartSlider", flooredSampleIndex, 0.0f);
             } else if(closestSlider == currentSlider) {
                     // Find the floored sample index, find the t, adjust the current slider, then adjust slider indicator and dummy
                 int flooredSampleIndex = (int)Mathf.Floor(sliderPercent * (dummySampleCount - 1));
@@ -177,20 +175,12 @@ public class SliderFieldScript : MonoBehaviour {
                     float flooredSamplePercent = (float)flooredSampleIndex / ((float)dummySampleCount - 1.0f);
                     float t = (sliderPercent - flooredSamplePercent) / (1.0f / ((float)dummySampleCount - 1.0f));
                     AdjustSlider("CurrentSlider", flooredSampleIndex, t);
-                    sliderIndicator.transform.localPosition = V3E.SetZ(closestSlider.transform.localPosition, indicatorOffset);
-                    dummyScript.Adjust(flooredSampleIndex, t);
+                    DMS.DS_Adjust(flooredSampleIndex, t);
                 }
             } else {    // end slider
-                    // Find the ceiled sample index, set the end slider sample index to this, then find and set new x position,
-                    // and adjust slider indicator and end aid
+                    // Find the ceiled sample index and adjust end slider
                 int ceiledSampleIndex = (int)Mathf.Ceil(sliderPercent * (dummySampleCount - 1));
-                endSliderSampleIndex = ceiledSampleIndex;
-                float ceiledSamplePercent = (float)endSliderSampleIndex / ((float)dummyScript.GetSampleCount() - 1.0f);
-                float newX = (ceiledSamplePercent * localHalfLength * -2) + localHalfLength;
-                endSlider.transform.localPosition = V3E.SetX(localCenter, newX);
-                sliderIndicator.transform.localPosition = V3E.SetZ(closestSlider.transform.localPosition, indicatorOffset);
-                endAid.transform.position = dummyScript.GetSamplePosition(endSliderSampleIndex);
-                endAid.transform.rotation = dummyScript.GetSampleRotation(endSliderSampleIndex);
+                AdjustSlider("EndSlider", ceiledSampleIndex, 0.0f);
             }
         }
     }
@@ -203,26 +193,20 @@ public class SliderFieldScript : MonoBehaviour {
             float samplePercent = (float)startSliderSampleIndex / ((float)dummySampleCount - 1.0f);
             float newX = (samplePercent * localHalfLength * -2) + localHalfLength;
             startSlider.transform.localPosition = V3E.SetX(localCenter, newX);
-            if (sliderIndicator.activeSelf)
-                sliderIndicator.transform.localPosition = V3E.SetZ(startSlider.transform.localPosition, indicatorOffset);
-            startAid.transform.position = dummyScript.GetSamplePosition(startSliderSampleIndex);
-            startAid.transform.rotation = dummyScript.GetSampleRotation(startSliderSampleIndex);
+            DMS.GetStartAid().transform.position = DMS.DS_GetSamplePosition(startSliderSampleIndex);
+            DMS.GetStartAid().transform.rotation = DMS.DS_GetSampleRotation(startSliderSampleIndex);
         } else if(sliderName == "CurrentSlider") {
             float samplePercent = (float)sampleIndex / ((float)dummySampleCount - 1.0f);
             float sliderPercent = t * (1.0f / ((float)dummySampleCount - 1.0f)) + samplePercent;
             float newX = (sliderPercent * localHalfLength * -2) + localHalfLength;
             currentSlider.transform.localPosition = V3E.SetX(localCenter, newX);
-            if (sliderIndicator.activeSelf)
-                sliderIndicator.transform.localPosition = V3E.SetZ(currentSlider.transform.localPosition, indicatorOffset);
         } else if(sliderName == "EndSlider") {
             endSliderSampleIndex = sampleIndex;
             float samplePercent = (float)endSliderSampleIndex / ((float)dummySampleCount - 1.0f);
             float newX = (samplePercent * localHalfLength * -2) + localHalfLength;
             endSlider.transform.localPosition = V3E.SetX(localCenter, newX);
-            if (sliderIndicator.activeSelf)
-                sliderIndicator.transform.localPosition = V3E.SetZ(endSlider.transform.localPosition, indicatorOffset);
-            endAid.transform.position = dummyScript.GetSamplePosition(endSliderSampleIndex);
-            endAid.transform.rotation = dummyScript.GetSampleRotation(endSliderSampleIndex);
+            DMS.GetEndAid().transform.position = DMS.DS_GetSamplePosition(endSliderSampleIndex);
+            DMS.GetEndAid().transform.rotation = DMS.DS_GetSampleRotation(endSliderSampleIndex);
         }
     }
 

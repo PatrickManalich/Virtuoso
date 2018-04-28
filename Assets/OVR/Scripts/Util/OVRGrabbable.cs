@@ -139,13 +139,11 @@ public class OVRGrabbable : MonoBehaviour
 
     void Awake()
     {
-        if (m_grabPoints.Length == 0)
-        {
+        if (m_grabPoints == null || m_grabPoints.Length == 0) {
             // Get the collider from the grabbable
             Collider collider = this.GetComponent<Collider>();
-            if (collider == null)
-            {
-				throw new ArgumentException("Grabbables cannot have zero grab points and no collider -- please add a grab point or collider.");
+            if (collider == null) {
+                throw new ArgumentException("Grabbables cannot have zero grab points and no collider -- please add a grab point or collider.");
             }
 
             // Create a default grab point
@@ -153,8 +151,7 @@ public class OVRGrabbable : MonoBehaviour
         }
     }
 
-    protected virtual void Start()
-    {
+    protected virtual void Start() {
         m_grabbedKinematic = GetComponent<Rigidbody>().isKinematic;
     }
 

@@ -31,6 +31,9 @@ public class OVRGrabber : MonoBehaviour {
     public float grabBegin = 0.55f;
     public float grabEnd = 0.35f;
 
+    public GameObject dummyManager;
+    private DummyManagerScript DMS;
+
     // Demonstrates parenting the held object to the hand's transform when grabbed.
     // When false, the grabbed object is moved every FixedUpdate using MovePosition. 
     // Note that MovePosition is required for proper physics simulation. If you set this to true, you can
@@ -84,6 +87,8 @@ public class OVRGrabber : MonoBehaviour {
     }
 
     protected virtual void Awake() {
+        DMS = dummyManager.GetComponent<DummyManagerScript>();
+
         m_anchorOffsetPosition = transform.localPosition;
         m_anchorOffsetRotation = transform.localRotation;
 
@@ -256,7 +261,7 @@ public class OVRGrabber : MonoBehaviour {
                 m_grabbedObj.transform.parent = transform;
             }
             if (m_grabbedObj.gameObject.tag == "Dummy")
-                m_grabbedObj.gameObject.GetComponent<DummyScript>().GrabBegin();
+                DMS.DS_AttemptGrabBegin(m_grabbedObj.gameObject);
         }
     }
 
@@ -280,7 +285,7 @@ public class OVRGrabber : MonoBehaviour {
     protected void GrabEnd() {
         if (m_grabbedObj != null) {
             if (m_grabbedObj.gameObject.tag == "Dummy")
-                m_grabbedObj.gameObject.GetComponent<DummyScript>().GrabEnd();
+                DMS.DS_AttemptGrabEnd(m_grabbedObj.gameObject);
             OVRPose localPose = new OVRPose { position = OVRInput.GetLocalControllerPosition(m_controller), orientation = OVRInput.GetLocalControllerRotation(m_controller) };
             OVRPose offsetPose = new OVRPose { position = m_anchorOffsetPosition, orientation = m_anchorOffsetRotation };
             localPose = localPose * offsetPose;

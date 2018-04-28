@@ -4,19 +4,19 @@ using UnityEngine;
 
 public class GhostBandScript : BandScript {
 
+    private DummyManagerScript DMS;
     private enum ToggleState { Off, On };   // The two state options are either off or on
     private ToggleState toggleState;        // The current state of the band
     private Renderer meshRenderer;          // The mesh renderer of the band
     private float toggleAnimationLength;    // The number of seconds the toggle animation lasts
-    private GhostScript ghostScript;        // The ghost script of the ghost Game Object
 
+    public GameObject dummyManager;
     public Material offMaterial;            // The off material of the band
     public Material onMaterial;             // The on material of the band
-    public GameObject ghost;                // The ghost Game Object
 
     private void Awake() {
-            // Initialized private variables and set it to the fourth position on the wrist
-        ghostScript = ghost.GetComponent<GhostScript>();
+        // Initialized private variables and set it to the fourth position on the wrist
+        DMS = dummyManager.GetComponent<DummyManagerScript>();
         base.InitializeBand();
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();
         meshRenderer.material = offMaterial;
@@ -31,7 +31,7 @@ public class GhostBandScript : BandScript {
             base.TriggerToggled();
             yield return new WaitForSeconds(toggleAnimationLength / 2);
             meshRenderer.material = onMaterial; // Changes material halfway through animation
-            ghostScript.StartGhosting();
+            DMS.GS_StartGhosting();
             yield return new WaitForSeconds(toggleAnimationLength / 2);
             toggleState = ToggleState.On;
             yield return null;
@@ -39,7 +39,7 @@ public class GhostBandScript : BandScript {
             base.TriggerToggled();
             yield return new WaitForSeconds(toggleAnimationLength / 2);
             meshRenderer.material = offMaterial; // Changes material halfway through animation
-            ghostScript.StopGhosting();
+            DMS.GS_StopGhosting();
             yield return new WaitForSeconds(toggleAnimationLength / 2);
             toggleState = ToggleState.Off;
             yield return null;

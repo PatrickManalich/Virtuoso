@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class StartBandScript : BandScript {
 
+    private DummyManagerScript DMS;
     private Renderer meshRenderer;          // The mesh renderer of the band
-    private DummyScript dummyScript;        // The dummy script of the dummy Game Object
 
+    public GameObject dummyManager;         // The dummy manager game object
     public Material startMaterial;          // The start material of the band
-    public GameObject dummy;                // The dummy Game Object
 
 
     private void Awake() {
             // Initialized private variables and set it to the second position on the wrist
-        dummyScript = dummy.GetComponent<DummyScript>();
+        DMS = dummyManager.GetComponent<DummyManagerScript>();
         base.InitializeBand();
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();
         meshRenderer.material = startMaterial;
@@ -23,7 +23,7 @@ public class StartBandScript : BandScript {
     /* */
     public override IEnumerator Toggle() {
         base.TriggerToggled();
-        dummyScript.GoToStart();
+        DMS.DS_GoToStart();
         yield return null;
     }
 }
