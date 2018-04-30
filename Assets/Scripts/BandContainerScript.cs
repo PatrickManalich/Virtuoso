@@ -25,7 +25,7 @@ public class BandContainerScript : MonoBehaviour {
     }
 
     private void OnTriggerEnter(Collider otherCollider) {
-        if (otherCollider.tag == "FingerTrigger") {
+        if (String.Equals(otherCollider.tag, "FingerTrigger")) {
                 // Find the closest band, start hovering animation, and begin waiting for buffer seconds
             closestBand = GetClosestBand(otherCollider.transform.position);
             closestBand.GetComponent<BandScript>().Hovering();
@@ -35,7 +35,7 @@ public class BandContainerScript : MonoBehaviour {
     }
 
     private void OnTriggerStay(Collider otherCollider) {
-        if (otherCollider.tag == "FingerTrigger" && bufferFinished) {
+        if (String.Equals(otherCollider.tag, "FingerTrigger") && bufferFinished) {
             GameObject newClosestBand = GetClosestBand(otherCollider.transform.position);
             if(newClosestBand.name != closestBand.name) {
                     // If hovering over a different band, switch which band is being hovered over
@@ -54,7 +54,7 @@ public class BandContainerScript : MonoBehaviour {
     }
 
     private void OnTriggerExit(Collider otherCollider) {
-        if (otherCollider.tag == "FingerTrigger" && closestBand) {
+        if (String.Equals(otherCollider.tag, "FingerTrigger") && closestBand) {
                 // Automatically unhover from closest band
             closestBand.GetComponent<BandScript>().Unhovering();
             closestBand = null;
@@ -75,7 +75,7 @@ public class BandContainerScript : MonoBehaviour {
         float minDistance = 0f;
         bool firstBand = true;
         foreach (Transform child in transform) {
-            if (child.gameObject.activeSelf && child.tag == "Band") {
+            if (child.gameObject.activeSelf && String.Equals(child.tag,"Band")) {
                 float testDistance = Vector3.Distance(child.transform.position, fingerTriggerPosition);
                 if (firstBand) {
                     closestBand = child.gameObject;

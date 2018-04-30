@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class StartBandScript : BandScript {
 
-    private DummyManagerScript DMS;
+    private DummyManagerScript DMS;         // The dummy manager game object
     private Renderer meshRenderer;          // The mesh renderer of the band
 
     public GameObject dummyManager;         // The dummy manager game object
@@ -20,7 +20,7 @@ public class StartBandScript : BandScript {
         base.SetPosition(1);
     }
 
-    /* */
+    /* Calls the dummy script function GoToStart(). */
     public override IEnumerator Toggle() {
         base.TriggerToggled();
         DMS.DS_GoToStart();

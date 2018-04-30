@@ -9,11 +9,12 @@ public class GloveScript : MonoBehaviour {
     private ToggleState toggleState;        // The current state of the band
     private Renderer meshRenderer;          // The mesh renderer of the band
 
-    public GloveType gloveType;
-    public Material overwriteMaterial;       // The overwrite material of the band
+    public GloveType gloveType;             // Used to specify whether it is the left glove or right glove
+    public Material overwriteMaterial;      // The overwrite material of the band
     public Material refineMaterial;         // The refine material of the band
 
     private void Awake() {
+            // Sets its position and initializes private variables
         if(gloveType == GloveType.Left) {
             transform.localPosition = new Vector3(-0.063f, -0.031f, -0.053f);
             transform.Rotate(0f, 0f, -90f);            
@@ -40,6 +41,7 @@ public class GloveScript : MonoBehaviour {
         }
     }
 
+    /* Returns true if in overwrite state, false otherwise. */
     public bool isInOverwriteState() {
         if (toggleState == ToggleState.Overwrite)
             return true;

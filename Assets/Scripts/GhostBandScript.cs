@@ -4,18 +4,18 @@ using UnityEngine;
 
 public class GhostBandScript : BandScript {
 
-    private DummyManagerScript DMS;
+    private DummyManagerScript DMS;         // The dummy manager script
     private enum ToggleState { Off, On };   // The two state options are either off or on
     private ToggleState toggleState;        // The current state of the band
     private Renderer meshRenderer;          // The mesh renderer of the band
     private float toggleAnimationLength;    // The number of seconds the toggle animation lasts
 
-    public GameObject dummyManager;
+    public GameObject dummyManager;         // The dummy manager game object
     public Material offMaterial;            // The off material of the band
     public Material onMaterial;             // The on material of the band
 
     private void Awake() {
-        // Initialized private variables and set it to the fourth position on the wrist
+            // Initialize private variables and set it to the fourth position on the wrist
         DMS = dummyManager.GetComponent<DummyManagerScript>();
         base.InitializeBand();
         meshRenderer = transform.GetChild(0).gameObject.GetComponent<Renderer>();

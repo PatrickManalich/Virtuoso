@@ -5,15 +5,15 @@ using System;
 
 public class DummyScript : MonoBehaviour {
 
-    private DummyManagerScript DMS;
+    private DummyManagerScript DMS;                 // The dummy manager script
     private int sampleCount;                        // The number of samples in the animation
     private Vector3[] samplePositions;              // An array of the sample positions
     private Quaternion[] sampleRotations;           // An array of the sample rotations
     private int lastSampleIndex;                    // The index of the last sample, used for playing animation
     private float lastT;                            // The last t, used for playing animation
     private bool isPaused;                          // Has the animation been paused
-    private Vector3[] editedSamplePositions;        // An array of the edited sample positions
-    private Quaternion[] editedSampleRotations;     // An array of the edited sample rotations
+    private Vector3[] alternativeSamplePositions;   // Stores the alternative sample positions used for undoing and redoing animations
+    private Quaternion[] alternativeSampleRotations;    // Stors the alternative sample rotations used for undoing and redoing animations
 
     /* Coroutine that moves the dummy from its current sample to the next sample by lerping over t. Will move back to first sample after
      * it has reached the last sample. Stores the information in global variables lastT and lastSampleIndex for the ability to pause and
@@ -25,7 +25,7 @@ public class DummyScript : MonoBehaviour {
             else
                 isPaused = false;
             while (lastT < 1) { // Lerp from t being 0 to t being 1
-                lastT += Time.deltaTime / DMS.SBC_GetSampleRate();
+                lastT += Time.deltaTime / DMS.SBS_GetSampleRate();
                 transform.position = Vector3.Lerp(samplePositions[lastSampleIndex], samplePositions[lastSampleIndex + 1], lastT);
                 transform.rotation = Quaternion.Lerp(sampleRotations[lastSampleIndex], sampleRotations[lastSampleIndex + 1], lastT);
                 DMS.SFS_AdjustSlider("CurrentSlider", lastSampleIndex, lastT);
@@ -34,7 +34,7 @@ public class DummyScript : MonoBehaviour {
                 // When it has reached the next sample, increment last sample index and start MoveToNextSample again
             lastSampleIndex++;
             yield return StartCoroutine(MoveToNextSample());
-        } else {    // If the last sample index is out of range, reset dummy to start slider positin and start MoveToNextSample again
+        } else {    // If the last sample index is out of range, reset dummy to start slider position and start MoveToNextSample again
             GoToStart();
             yield return StartCoroutine(MoveToNextSample());
         }
@@ -44,11 +44,13 @@ public class DummyScript : MonoBehaviour {
      * until it has reached the end slider sample index, in which case it will force release the left and right grabber. */
     private IEnumerator OverwriteNextSample() {
         if (lastSampleIndex <= DMS.SFS_GetEndSliderSampleIndex()) {
-            editedSamplePositions[lastSampleIndex] = transform.position;
-            editedSampleRotations[lastSampleIndex] = transform.rotation;
+            alternativeSamplePositions[lastSampleIndex] = samplePositions[lastSampleIndex];
+            alternativeSampleRotations[lastSampleIndex] = sampleRotations[lastSampleIndex];
+            samplePositions[lastSampleIndex] = transform.position;
+            sampleRotations[lastSampleIndex] = transform.rotation;
             DMS.SFS_AdjustSlider("CurrentSlider", lastSampleIndex, 0f);
             lastSampleIndex++;
-            yield return new WaitForSeconds(DMS.SBC_GetSampleRate());
+            yield return new WaitForSeconds(DMS.SBS_GetSampleRate());
             yield return StartCoroutine(OverwriteNextSample());
         } else {
             DMS.OVRG_ForceRelease(gameObject.GetComponent<OVRGrabbable>());
@@ -81,22 +83,27 @@ public class DummyScript : MonoBehaviour {
         }
     }
 
-    /* */
+    /* Takes in a dummy manager script and a sample count param, and initializes its private variables with these parameters. Also 
+     * initializes sample positions, sample rotations, alternative sample positions, alternative sample rotations, and other private
+     * variables. */
     public void Initialize(ref DummyManagerScript DMSParam, int sampleCountParam) {
         
         DMS = DMSParam;
         sampleCount = sampleCountParam;
+
         samplePositions = new Vector3[sampleCount];
         for (int i = 0; i < sampleCount; i++) { samplePositions[i] = transform.position; }
         sampleRotations = new Quaternion[sampleCount];
         for (int i = 0; i < sampleCount; i++) { sampleRotations[i] = transform.rotation; }
 
+        alternativeSamplePositions = new Vector3[sampleCount];
+        for (int i = 0; i < sampleCount; i++) { alternativeSamplePositions[i] = transform.position; }
+        alternativeSampleRotations = new Quaternion[sampleCount];
+        for (int i = 0; i < sampleCount; i++) { alternativeSampleRotations[i] = transform.rotation; }
+
         lastSampleIndex = (sampleCount / 2) - 1;
         lastT = 0f;
         isPaused = false;
-
-        editedSamplePositions = new Vector3[sampleCount];
-        editedSampleRotations = new Quaternion[sampleCount];
     }
 
     /* Takes in a sample index and returns the sample position at that index. */
@@ -122,11 +129,8 @@ public class DummyScript : MonoBehaviour {
         isPaused = true;
     }
 
-    /* Place dummy at the start slider position. */
-    public void GoToStart() {
-        Adjust(DMS.SFS_GetStartSliderSampleIndex(), 0f);
-        DMS.SFS_AdjustSlider("CurrentSlider", DMS.SFS_GetStartSliderSampleIndex(), 0f);
-    }
+    /* Sends the dummy to the start slider sample */
+    public void GoToStart() { Adjust(DMS.SFS_GetStartSliderSampleIndex(), 0f); }
 
     /* Called once when the dummy is first grabbed. Depending on the state of the left glove (overwite or refine), will call the appropriate
      * functions. */
@@ -138,6 +142,7 @@ public class DummyScript : MonoBehaviour {
 
         if (DMS.LGS_IsInOverwriteState()) {
             DMS.SFS_AdjustSlider("StartSlider", lastSampleIndex, 0f);     // force the start slider to align
+            DMS.AdjustStartAids(lastSampleIndex);
             lastT = 0f;
             StartCoroutine(OverwriteNextSample());
         } else    // Refining
@@ -149,19 +154,29 @@ public class DummyScript : MonoBehaviour {
     public void GrabEnd() {
         if (DMS.LGS_IsInOverwriteState()) {
             StopAllCoroutines();
-            int newEndSliderSampleIndex = lastSampleIndex - 1;    // the minus one comes from lastSampleIndex incrementing an extra time on last sample 
-            for (int i = DMS.SFS_GetStartSliderSampleIndex(); i <= newEndSliderSampleIndex; i++) {
-                samplePositions[i] = editedSamplePositions[i];
-                sampleRotations[i] = editedSampleRotations[i];
-            }
-            DMS.SFS_AdjustSlider("EndSlider", newEndSliderSampleIndex, 0f);   // force the end slider to align 
-
-            GoToStart();
+            DMS.SFS_AdjustSlider("EndSlider", lastSampleIndex - 1, 0f);   // force the end slider to align, the minus one comes from lastSampleIndex 
+                                                                          // incrementing an extra time on last sample 
+            DMS.AdjustEndAids(lastSampleIndex - 1);
+            DMS.DS_GoToStart();
         } else {    // Refining
             DMS.RGS_StopGuiding();
             ApplyRefinement();
         }
-
     }
 
+
+    /* Swaps all sample positions and rotations from the current array to the alternative array, from start slider sample index to
+     * end slider sample index. Used for undoing and redoing. */
+    public void AlternateSamples() {
+        Vector3 tempPosition;
+        Quaternion tempRotation;
+        for (int i = DMS.SFS_GetStartSliderSampleIndex(); i <= DMS.SFS_GetEndSliderSampleIndex(); i++) {
+            tempPosition = samplePositions[i];
+            tempRotation = sampleRotations[i];
+            samplePositions[i] = alternativeSamplePositions[i];
+            sampleRotations[i] = alternativeSampleRotations[i];
+            alternativeSamplePositions[i] = tempPosition;
+            alternativeSampleRotations[i] = tempRotation;
+        }
+    }
 }
