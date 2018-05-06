@@ -46,4 +46,9 @@ public class UndoBandScript : BandScript {
         }
     }
 
+    /* Forces the undo band to enter the undo toggle state. */
+    public void ForceIntoUndoToggleState() {
+        meshRenderer.material = undoMaterial;
+        toggleState = ToggleState.Undo;
+    }
 }

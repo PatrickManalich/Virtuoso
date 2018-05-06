@@ -15,7 +15,7 @@ public class SliderFieldScript : MonoBehaviour {
     private GameObject startSlider;                 // The start slider, which should be a child of the slider field
     private GameObject currentSlider;               // The current slider, which should be a child of the slider field
     private GameObject endSlider;                   // The end slider, which should be a child of the slider field
-    private GameObject ghostSlider;
+    private GameObject ghostSlider;                 // The ghost slider, which should be a child of the slider field
     private int startSliderSampleIndex;             // The sample index the start slider is currently over
     private int endSliderSampleIndex;               // The sample index the end slider is currently over
     private GameObject sliderIndicator;             // The slider indicator, which should be a child of the slider field

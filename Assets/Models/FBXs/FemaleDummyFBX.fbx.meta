@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 77aa108eb9141fd46ba425ae5e2923c1
-timeCreated: 1524457165
+timeCreated: 1525123316
 licenseType: Free
 ModelImporter:
   serializedVersion: 22
@@ -15,7 +15,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: FemaleDummyMaterial
-    second: {fileID: 2100000, guid: c5af8e2b1a4723e438537bc3f1370c9d, type: 2}
+    second: {fileID: 2100000, guid: 6eeebd1562f8e5d48943bf8c94cd09fb, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

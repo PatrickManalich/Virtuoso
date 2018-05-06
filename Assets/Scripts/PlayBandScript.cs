@@ -47,7 +47,7 @@ public class PlayBandScript : BandScript {
     }
 
     /* Forces the play band to enter the pause toggle state. */
-    public void ForcePauseToggle() {
+    public void ForceIntoPauseToggleState() {
         meshRenderer.material = pauseMaterial;
         toggleState = ToggleState.Pause;
     }

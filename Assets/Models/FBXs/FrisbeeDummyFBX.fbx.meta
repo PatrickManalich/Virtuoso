@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: b1dd14ea78a4000459e1797b29a395e0
-timeCreated: 1525123318
+guid: 35cc5a96d045c8141bfe165d95961fcd
+timeCreated: 1525118454
 licenseType: Free
 ModelImporter:
   serializedVersion: 22
@@ -14,8 +14,8 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: MaleDummyLambert
-    second: {fileID: 2100000, guid: b7d6e5d333c5c834393ea27bd61e1e17, type: 2}
+      name: FrisbeeDummyLambert
+    second: {fileID: 2100000, guid: 0089bc83e04653a40b9d93731c0aa6e6, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

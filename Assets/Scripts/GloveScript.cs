@@ -42,7 +42,7 @@ public class GloveScript : MonoBehaviour {
     }
 
     /* Returns true if in overwrite state, false otherwise. */
-    public bool isInOverwriteState() {
+    public bool IsInOverwriteState() {
         if (toggleState == ToggleState.Overwrite)
             return true;
         else

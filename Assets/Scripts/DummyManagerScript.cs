@@ -13,29 +13,33 @@ public class DummyManagerScript : MonoBehaviour {
     private GameObject[] ghosts;                    // The array of ghosts in the scene
     private SpeedBandScript speedBandScript;        // The speed band script, used for caching
     private PlayBandScript playBandScript;          // The play band script, used for caching
+    private UndoBandScript undoBandScript;          // The undo band script, used for caching
     private SliderFieldScript sliderFieldScript;    // The slider field script, used for caching
     private GloveScript leftGloveScript;            // The glove script of the left glove, used for caching
     private RefineGuideScript refineGuideScript;    // The refine guide script, used for caching
     private OVRGrabber leftOVRGrabberScript;        // The OVR grabber script of the left hand anchor
     private OVRGrabber rightOVRGrabberScript;       // The OVR grabber script of the right hand anchor
 
+    public float dummyIndicatorOffset;              // The amount above the dummy the dummy indicator is offset by
     public Material startAidMaterial;               // The start aid material
     public Material endAidMaterial;                 // The end aid material
     public Material ghostMaterial;                  // The ghost material
     public float animationSeconds;                  // How long the animation lasts in seconds
     public GameObject speedBand;                    // The speed band of the slider field
     public GameObject playBand;                     // The play band of the slider field
-    public GameObject sliderField;                  // The slider field Game Object, used for adjusting current slider
-    public GameObject leftHandAnchor;               // The left hand anchor Game Object
-    public GameObject rightHandAnchor;              // The right hand anchor Game Object
-    public GameObject leftGlove;                    // The left glove Game Object (you only need one)
-    public GameObject refineGuide;                  // The refine guide Game Object
-    public GameObject dummyIndicator;
+    public GameObject undoBand;                     // The undo band of the slider field
+    public GameObject sliderField;                  // The slider field game object, used for adjusting current slider
+    public GameObject leftHandAnchor;               // The left hand anchor game object
+    public GameObject rightHandAnchor;              // The right hand anchor game object
+    public GameObject leftGlove;                    // The left glove game object (you only need one)
+    public GameObject refineGuide;                  // The refine guide game object
+    public GameObject dummyIndicator;               // The dummy indicator game object
 
     private void Awake() {
             // Initialize all private scripts
         speedBandScript = speedBand.GetComponent<SpeedBandScript>();
         playBandScript = playBand.GetComponent<PlayBandScript>();
+        undoBandScript = undoBand.GetComponent<UndoBandScript>();
         sliderFieldScript = sliderField.GetComponent<SliderFieldScript>();
         leftGloveScript = leftGlove.GetComponent<GloveScript>();
         refineGuideScript = refineGuide.GetComponent<RefineGuideScript>();
@@ -86,10 +90,10 @@ public class DummyManagerScript : MonoBehaviour {
             // and parent dummy indicator with the selected dummy and place it above the dummy
         selectedDummyIndex = 0;
         dummies[selectedDummyIndex].AddComponent<OVRGrabbable>();
+        dummyIndicator.transform.localScale = new Vector3(4.0f, 4.0f, 4.0f);
         dummyIndicator.transform.parent = dummies[selectedDummyIndex].transform;
-        dummyIndicator.transform.localPosition = new Vector3(0.0f, dummies[selectedDummyIndex].GetComponent<BoxCollider>().size.y / 2, 0.0f);
-        dummyIndicator.transform.Rotate(90f, 0f, 0f);
-        dummyIndicator.transform.localScale = new Vector3(3.5f, 3.5f, 3.5f);
+        dummyIndicator.transform.localPosition = new Vector3(0.0f, (dummies[selectedDummyIndex].GetComponent<BoxCollider>().size.y / 2.0f) + dummyIndicatorOffset, 0.0f);
+        dummyIndicator.transform.localRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
     }
 
     private void Update() {
@@ -101,7 +105,8 @@ public class DummyManagerScript : MonoBehaviour {
                 selectedDummyIndex = 0;
             dummies[selectedDummyIndex].AddComponent<OVRGrabbable>();
             dummyIndicator.transform.parent = dummies[selectedDummyIndex].transform;
-            dummyIndicator.transform.localPosition = new Vector3(0.0f, dummies[selectedDummyIndex].GetComponent<BoxCollider>().size.y / 2, 0.0f);
+            dummyIndicator.transform.localPosition = new Vector3(0.0f, (dummies[selectedDummyIndex].GetComponent<BoxCollider>().size.y / 2.0f) + dummyIndicatorOffset, 0.0f);
+            dummyIndicator.transform.localRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
         }
     }
 
@@ -131,8 +136,8 @@ public class DummyManagerScript : MonoBehaviour {
         leftOVRGrabberScript.ForceRelease(gameObjectOVRGrabbable);
         rightOVRGrabberScript.ForceRelease(gameObjectOVRGrabbable);
     }
-    public void PBS_ForcePauseToggle() { playBandScript.ForcePauseToggle(); }
-    public bool LGS_IsInOverwriteState() { return leftGloveScript.isInOverwriteState(); }
+    public void PBS_ForceIntoPauseToggleState() { playBandScript.ForceIntoPauseToggleState(); }
+    public bool LGS_IsInOverwriteState() { return leftGloveScript.IsInOverwriteState(); }
     public void RGS_StartGuiding(Vector3 newAnchorPoint) { refineGuideScript.StartGuiding(newAnchorPoint); }
     public void RGS_StopGuiding() { refineGuideScript.StopGuiding(); }
     public void GS_StartGhosting() {
@@ -141,6 +146,7 @@ public class DummyManagerScript : MonoBehaviour {
     public void GS_StopGhosting() {
         foreach (GameObject ghost in ghosts) { ghost.GetComponent<GhostScript>().StopGhosting(); }
     }
+    public void UB_ForceIntoUndoToggleState() { undoBandScript.ForceIntoUndoToggleState(); }
 
     /* Functions from Dummy Script. DS stands for DummyScript */
     public Vector3 DS_GetSamplePosition(int personalDummyIndex, int sampleIndex) {
@@ -165,24 +171,32 @@ public class DummyManagerScript : MonoBehaviour {
     public void DS_AttemptGrabBegin(GameObject attemptDummy) {
         if(String.Equals(attemptDummy.name, dummies[selectedDummyIndex].name)) {
             dummies[selectedDummyIndex].GetComponent<DummyScript>().GrabBegin();
-            foreach (GameObject dummy in dummies) {
-                if (!String.Equals(attemptDummy.name, dummy.name))
-                    dummy.GetComponent<DummyScript>().StartPlaying();
+            if (leftGloveScript.IsInOverwriteState()) {
+                foreach (GameObject dummy in dummies) {
+                    if (!String.Equals(attemptDummy.name, dummy.name))
+                        dummy.GetComponent<DummyScript>().StartPlaying();
+                }
             }
         }
     }
     public void DS_AttemptGrabEnd(GameObject attemptDummy) {
         if (String.Equals(attemptDummy.name, dummies[selectedDummyIndex].name)) {
             dummies[selectedDummyIndex].GetComponent<DummyScript>().GrabEnd();
-            foreach (GameObject dummy in dummies) {
-                if (!String.Equals(attemptDummy.name, dummy.name))
-                    dummy.GetComponent<DummyScript>().StopPlaying();
+            if (leftGloveScript.IsInOverwriteState()) {
+                foreach (GameObject dummy in dummies) {
+                    if (!String.Equals(attemptDummy.name, dummy.name))
+                        dummy.GetComponent<DummyScript>().StopPlaying();
+                }
             }
         }
     }
     public void DS_AlternateSamples() {
-        dummies[selectedDummyIndex].GetComponent<DummyScript>().AlternateSamples();
-        sliderFieldScript.AdjustSlider("EndSlider", sliderFieldScript.GetEndSliderSampleIndex(), 0f);
-
+        DummyScript selectedDummyScript = dummies[selectedDummyIndex].GetComponent<DummyScript>();
+        selectedDummyScript.AlternateSamples();
+        selectedDummyScript.Adjust(selectedDummyScript.GetLastSampleIndex(), selectedDummyScript.GetLastT());
+        startAids[selectedDummyIndex].transform.position = selectedDummyScript.GetSamplePosition(sliderFieldScript.GetStartSliderSampleIndex());
+        startAids[selectedDummyIndex].transform.rotation = selectedDummyScript.GetSampleRotation(sliderFieldScript.GetStartSliderSampleIndex());
+        endAids[selectedDummyIndex].transform.position = selectedDummyScript.GetSamplePosition(sliderFieldScript.GetEndSliderSampleIndex());
+        endAids[selectedDummyIndex].transform.rotation = selectedDummyScript.GetSampleRotation(sliderFieldScript.GetEndSliderSampleIndex());
     }
 }

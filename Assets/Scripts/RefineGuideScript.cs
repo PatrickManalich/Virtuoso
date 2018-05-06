@@ -15,6 +15,7 @@ public class RefineGuideScript : MonoBehaviour {
     private void Awake() {
             // Initializes DMS, and sets it inactive and not guiding initially
         DMS = dummyManager.GetComponent<DummyManagerScript>();
+        transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
         isGuiding = false;
         gameObject.SetActive(false);
     }

@@ -62,24 +62,28 @@ public class DummyScript : MonoBehaviour {
      * ease-in ease-out functionality. Slices the work into two halves, one from the start slider sample index to the last sample index,
      * and one from the last sample index to the end sample index. */
     private void ApplyRefinement() {
-        float refineT;
         float percent;
         int startSliderSampleIndex = DMS.SFS_GetStartSliderSampleIndex(); // For caching
         int endSliderSampleIndex = DMS.SFS_GetEndSliderSampleIndex();     // For caching
 
+        Vector3 diff = transform.position - samplePositions[lastSampleIndex];
         // From range [start slider sample index, last sample index]
-        for(int i = startSliderSampleIndex; i <= lastSampleIndex; i++) {
+        for (int i = startSliderSampleIndex; i <= lastSampleIndex; i++) {
             percent = (i - startSliderSampleIndex) / ((float)lastSampleIndex - startSliderSampleIndex);
-            refineT = Mathfx.Hermite(0.0f, 1.0f, percent);
-            samplePositions[i] = Vector3.Lerp(samplePositions[i], transform.position, refineT);
-            sampleRotations[i] = Quaternion.Lerp(sampleRotations[i], transform.rotation, refineT);
+            float hermitePercent = Mathfx.Hermite(0.0f, 1.0f, percent);
+            Vector3 offset = diff * hermitePercent;
+            alternativeSamplePositions[i] = samplePositions[i];
+            samplePositions[i] = samplePositions[i] + offset;
         }
-        // From range (last sample index, end slider sample index]
-        for (int i = lastSampleIndex + 1; i <= endSliderSampleIndex; i++) {
-            percent = (i - lastSampleIndex - 1) / ((float)endSliderSampleIndex - lastSampleIndex - 1);
-            refineT = Mathfx.Hermite(0.0f, 1.0f, percent);
-            samplePositions[i] = Vector3.Lerp(transform.position, samplePositions[i], refineT);
-            sampleRotations[i] = Quaternion.Lerp(transform.rotation, sampleRotations[i], refineT);
+
+        diff = transform.position - samplePositions[lastSampleIndex + 1];
+        // From range (last sample index, end slider sample index], going backwards
+        for (int i = endSliderSampleIndex; i >= lastSampleIndex + 1; i--) {
+            percent = (endSliderSampleIndex - i) / (float)(endSliderSampleIndex - lastSampleIndex - 1);
+            float hermitePercent = Mathfx.Hermite(0.0f, 1.0f, percent);
+            Vector3 offset = diff * hermitePercent;
+            alternativeSamplePositions[i] = samplePositions[i];
+            samplePositions[i] = samplePositions[i] + offset;
         }
     }
 
@@ -112,6 +116,12 @@ public class DummyScript : MonoBehaviour {
     /* Takes in a sample index and returns the sample rotation at that index. */
     public Quaternion GetSampleRotation(int sampleIndex) { return sampleRotations[sampleIndex]; }
 
+    /* Returns the last sample index of this dummy. */
+    public int GetLastSampleIndex() { return lastSampleIndex; }
+
+    /* Returns the last t of this dummy. */
+    public float GetLastT() { return lastT; }
+
     /* Takes in a sample index and a t and adjusts the position of the dummy based on the values. */
     public void Adjust(int sampleIndex, float t) {
         lastT = t;
@@ -137,8 +147,9 @@ public class DummyScript : MonoBehaviour {
     public void GrabBegin() {
         if (!isPaused) {    // If it was playing when grabbed, stop playing and force the play band to pause
             StopPlaying();
-            DMS.PBS_ForcePauseToggle();
+            DMS.PBS_ForceIntoPauseToggleState();
         }
+        DMS.UB_ForceIntoUndoToggleState();
 
         if (DMS.LGS_IsInOverwriteState()) {
             DMS.SFS_AdjustSlider("StartSlider", lastSampleIndex, 0f);     // force the start slider to align
